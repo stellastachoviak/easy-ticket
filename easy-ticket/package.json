@@ -1,5 +1,5 @@
 {
-  "name": "easy-ticket",
+  "name": "taskapp",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,12 +9,24 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-navigation/native": "^7.1.17",
-    "@react-navigation/stack": "^7.4.7",
-    "expo": "~53.0.22",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-picker/picker": "^2.11.1",
+    "@react-navigation/bottom-tabs": "^7.4.2",
+    "@react-navigation/drawer": "^7.5.3",
+    "@react-navigation/native": "^7.1.14",
+    "@react-navigation/stack": "^7.4.2",
+    "@reduxjs/toolkit": "^2.8.2",
+    "axios": "^1.11.0",
+    "expo": "~53.0.20",
     "expo-status-bar": "~2.2.3",
+    "formik": "^2.4.6",
     "react": "19.0.0",
-    "react-native": "0.79.6"
+    "react-native": "0.79.5",
+    "react-native-gesture-handler": "^2.24.0",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-vector-icons": "^10.3.0",
+    "react-redux": "^9.2.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
