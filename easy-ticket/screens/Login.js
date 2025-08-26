@@ -5,7 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
+import usuarios from "../data/usuarios.json"; // importa o JSON
 
 export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
@@ -15,8 +17,18 @@ export default function Login({ navigation }) {
 
   const handleLogin = () => {
     if (isAdm) {
-      navigation.navigate("TelaAdm");
+      // 🔎 Verifica no JSON se o admin existe
+      const encontrado = usuarios.admins.find(
+        (adm) => adm.matricula === matricula && adm.senha === senha
+      );
+
+      if (encontrado) {
+        navigation.navigate("TelaAdm");
+      } else {
+        Alert.alert("Erro", "Matrícula ou senha inválida!");
+      }
     } else {
+      // Por enquanto aluno só navega sem validação
       navigation.navigate("HomeAluno");
     }
   };
@@ -24,7 +36,6 @@ export default function Login({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        {/* Switch estilo tab */}
         <View style={styles.switchRow}>
           <TouchableOpacity
             style={[styles.switchButton, isAdm && styles.activeSwitch]}
@@ -44,7 +55,7 @@ export default function Login({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Inputs */}
+        {/* Input Matrícula */}
         <TextInput
           style={styles.input}
           placeholder="Matrícula"
@@ -53,6 +64,7 @@ export default function Login({ navigation }) {
           placeholderTextColor="#999"
         />
 
+        {/* Input Senha só aparece para Adm */}
         {isAdm && (
           <View style={styles.passwordContainer}>
             <TextInput
@@ -88,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#0b0b2a", // fundo escuro
+    backgroundColor: "#0b0b2a",
   },
   card: {
     width: "90%",
