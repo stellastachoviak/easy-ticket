@@ -16,11 +16,11 @@ const ESCOLA_COORDS = {
 };
 
 
-  const RAIO_ESCOLA = 100;
+  const RAIO_ESCOLA = 100; 
 
   useEffect(() => {
     (async () => {
-      
+     
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permissão negada para acessar localização.");
@@ -46,7 +46,7 @@ const ESCOLA_COORDS = {
   }, []);
 
   function calcularDistancia(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
+    const R = 6371e3; 
     const toRad = (grau) => (grau * Math.PI) / 180;
 
     const dLat = toRad(lat2 - lat1);
@@ -62,13 +62,14 @@ const ESCOLA_COORDS = {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c; 
+  }
 
   function verificarHorario() {
     const agora = new Date();
     const hora = agora.getHours();
     const minuto = agora.getMinutes();
 
-   
+    
     const intervaloHora = 10;
     const intervaloMinuto = 0;
 
