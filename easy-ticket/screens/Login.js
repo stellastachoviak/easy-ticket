@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import usuarios from "../data/usuarios.json"; // importa o JSON
+import usuarios from "../data/usuarios.json"; 
 
 export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
@@ -17,7 +17,7 @@ export default function Login({ navigation }) {
 
   const handleLogin = () => {
     if (isAdm) {
-      // 🔎 Verifica no JSON se o admin existe
+     
       const encontrado = usuarios.admins.find(
         (adm) => adm.matricula === matricula && adm.senha === senha
       );
@@ -28,7 +28,7 @@ export default function Login({ navigation }) {
         Alert.alert("Erro", "Matrícula ou senha inválida!");
       }
     } else {
-      // Por enquanto aluno só navega sem validação
+      
       navigation.navigate("HomeAluno");
     }
   };
@@ -55,7 +55,7 @@ export default function Login({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Input Matrícula */}
+        
         <TextInput
           style={styles.input}
           placeholder="Matrícula"
@@ -64,7 +64,6 @@ export default function Login({ navigation }) {
           placeholderTextColor="#999"
         />
 
-        {/* Input Senha só aparece para Adm */}
         {isAdm && (
           <View style={styles.passwordContainer}>
             <TextInput
@@ -86,7 +85,6 @@ export default function Login({ navigation }) {
           </View>
         )}
 
-        {/* Botão */}
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Log In</Text>
         </TouchableOpacity>
