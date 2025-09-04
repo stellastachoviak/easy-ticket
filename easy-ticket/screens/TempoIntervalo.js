@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function TempoIntervalo() {
-  
   const HORA_INICIO = 15;
   const MINUTO_INICIO = 0;
   const HORA_FIM = 15;
@@ -12,28 +11,63 @@ export default function TempoIntervalo() {
   const [tempoRestante, setTempoRestante] = useState("");
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    function atualizarTempo() {
       const agora = new Date();
 
-      const inicio = new Date();
-      inicio.setHours(HORA_INICIO, MINUTO_INICIO, 0, 0);
-
-      const fim = new Date();
-      fim.setHours(HORA_FIM, MINUTO_FIM, 0, 0);
-
-      if (agora >= inicio && agora <= fim) {
-        setIntervaloAtivo(true);
-        const diffMs = fim - agora;
-        setTempoRestante(formatarTempo(diffMs));
-      } else if (agora < inicio) {
+      
+      const diaSemana = agora.getUTCDay(); 
+      if (diaSemana < 1 || diaSemana > 4) {
         setIntervaloAtivo(false);
-        const diffMs = inicio - agora;
-        setTempoRestante(formatarTempo(diffMs));
+        setTempoRestante("Hoje não tem intervalo.");
+        return;
+      }
+
+      
+      const agoraUtc = new Date(
+        agora.getUTCFullYear(),
+        agora.getUTCMonth(),
+        agora.getUTCDate(),
+        agora.getUTCHours(),
+        agora.getUTCMinutes(),
+        agora.getUTCSeconds()
+      );
+
+      const inicio = new Date(
+        agoraUtc.getUTCFullYear(),
+        agoraUtc.getUTCMonth(),
+        agoraUtc.getUTCDate(),
+        HORA_INICIO + 3, 
+        MINUTO_INICIO,
+        0
+      );
+
+      const fim = new Date(
+        agoraUtc.getUTCFullYear(),
+        agoraUtc.getUTCMonth(),
+        agoraUtc.getUTCDate(),
+        HORA_FIM + 3, 
+        MINUTO_FIM,
+        0
+      );
+
+      console.log("Agora:", agoraUtc.toLocaleString());
+      console.log("Início:", inicio.toLocaleString());
+      console.log("Fim:", fim.toLocaleString());
+
+      if (agoraUtc < inicio) {
+        setIntervaloAtivo(false);
+        setTempoRestante(`Faltam: ${formatarTempo(inicio.getTime() - agoraUtc.getTime())} para o intervalo`);
+      } else if (agoraUtc >= inicio && agoraUtc <= fim) {
+        setIntervaloAtivo(true);
+        setTempoRestante(`Tempo restante: ${formatarTempo(fim.getTime() - agoraUtc.getTime())}`);
       } else {
         setIntervaloAtivo(false);
         setTempoRestante("Intervalo já acabou.");
       }
-    }, 1000);
+    }
+
+    atualizarTempo();
+    const timer = setInterval(atualizarTempo, 1000);
 
     return () => clearInterval(timer);
   }, []);
@@ -53,13 +87,7 @@ export default function TempoIntervalo() {
       <Text style={styles.status}>
         {intervaloAtivo ? "Intervalo ATIVO" : "Intervalo INATIVO"}
       </Text>
-      <Text style={styles.timer}>
-        {intervaloAtivo
-          ? `Tempo restante: ${tempoRestante}`
-          : tempoRestante === "Intervalo já acabou."
-          ? tempoRestante
-          : `Faltam: ${tempoRestante} para o intervalo`}
-      </Text>
+      <Text style={styles.timer}>{tempoRestante}</Text>
     </View>
   );
 }

@@ -13,7 +13,10 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="HomeAluno" component={HomeAluno} />
+        <Stack.Screen name="HomeAluno" component={HomeAluno} options={{
+    headerBackVisible: false,
+    gestureEnabled: false,    
+  }}/>
         <Stack.Screen name="TelaAdm" component={TelaAdm} />
         <Stack.Screen name="TempoIntervalo" component={TempoIntervalo} />
       </Stack.Navigator>
