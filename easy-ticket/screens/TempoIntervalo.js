@@ -2,64 +2,78 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function TempoIntervalo() {
-  const HORA_INICIO = 15;
-  const MINUTO_INICIO = 0;
-  const HORA_FIM = 15;
-  const MINUTO_FIM = 15;
+  // Horário do intervalo em BRT
+  const HORA_INICIO_BRT = 15;
+  const MINUTO_INICIO_BRT = 0;
+  const HORA_FIM_BRT = 15;
+  const MINUTO_FIM_BRT = 15;
 
   const [intervaloAtivo, setIntervaloAtivo] = useState(false);
   const [tempoRestante, setTempoRestante] = useState("");
 
   useEffect(() => {
     function atualizarTempo() {
-      const agora = new Date();
+      const agoraUTC = new Date();
 
-      
-      const diaSemana = agora.getUTCDay(); 
-      if (diaSemana < 1 || diaSemana > 4) {
+      // Converte para BRT (UTC-3) para verificar o dia da semana
+      const agoraBRT = new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
+      const diaSemanaBRT = agoraBRT.getDay(); // 0=Dom, 1=Seg, ..., 4=Qui, 5=Sex, 6=Sab
+
+      // Verifica se hoje é segunda a quinta
+      if (diaSemanaBRT < 1 || diaSemanaBRT > 4) {
         setIntervaloAtivo(false);
         setTempoRestante("Hoje não tem intervalo.");
         return;
       }
 
-      
-      const agoraUtc = new Date(
-        agora.getUTCFullYear(),
-        agora.getUTCMonth(),
-        agora.getUTCDate(),
-        agora.getUTCHours(),
-        agora.getUTCMinutes(),
-        agora.getUTCSeconds()
-      );
-
-      const inicio = new Date(
-        agoraUtc.getUTCFullYear(),
-        agoraUtc.getUTCMonth(),
-        agoraUtc.getUTCDate(),
-        HORA_INICIO + 3, 
-        MINUTO_INICIO,
+      // Define início e fim do intervalo em UTC
+      const inicioUTC = new Date(Date.UTC(
+        agoraUTC.getUTCFullYear(),
+        agoraUTC.getUTCMonth(),
+        agoraUTC.getUTCDate(),
+        HORA_INICIO_BRT + 3, // 15h BRT = 18h UTC
+        MINUTO_INICIO_BRT,
+        0,
         0
-      );
+      ));
 
-      const fim = new Date(
-        agoraUtc.getUTCFullYear(),
-        agoraUtc.getUTCMonth(),
-        agoraUtc.getUTCDate(),
-        HORA_FIM + 3, 
-        MINUTO_FIM,
+      const fimUTC = new Date(Date.UTC(
+        agoraUTC.getUTCFullYear(),
+        agoraUTC.getUTCMonth(),
+        agoraUTC.getUTCDate(),
+        HORA_FIM_BRT + 3, // 15:15 BRT = 18:15 UTC
+        MINUTO_FIM_BRT,
+        0,
         0
+      ));
+
+      // Logs em BRT
+      const pad = (n) => n.toString().padStart(2, "0");
+      const agoraBRT_Hora = (agoraUTC.getUTCHours() - 3 + 24) % 24;
+      console.log(
+        "Agora (BRT):",
+        `${pad(agoraBRT_Hora)}:${pad(agoraUTC.getUTCMinutes())}:${pad(agoraUTC.getUTCSeconds())}`
+      );
+      console.log(
+        "Início (BRT):",
+        `${pad(HORA_INICIO_BRT)}:${pad(MINUTO_INICIO_BRT)}`
+      );
+      console.log(
+        "Fim (BRT):",
+        `${pad(HORA_FIM_BRT)}:${pad(MINUTO_FIM_BRT)}`
       );
 
-      console.log("Agora:", agoraUtc.toLocaleString());
-      console.log("Início:", inicio.toLocaleString());
-      console.log("Fim:", fim.toLocaleString());
-
-      if (agoraUtc < inicio) {
+      // Antes, durante ou depois do intervalo
+      if (agoraUTC < inicioUTC) {
         setIntervaloAtivo(false);
-        setTempoRestante(`Faltam: ${formatarTempo(inicio.getTime() - agoraUtc.getTime())} para o intervalo`);
-      } else if (agoraUtc >= inicio && agoraUtc <= fim) {
+        setTempoRestante(
+          `Faltam: ${formatarTempo(inicioUTC.getTime() - agoraUTC.getTime())} para o intervalo`
+        );
+      } else if (agoraUTC >= inicioUTC && agoraUTC <= fimUTC) {
         setIntervaloAtivo(true);
-        setTempoRestante(`Tempo restante: ${formatarTempo(fim.getTime() - agoraUtc.getTime())}`);
+        setTempoRestante(
+          `Tempo restante: ${formatarTempo(fimUTC.getTime() - agoraUTC.getTime())}`
+        );
       } else {
         setIntervaloAtivo(false);
         setTempoRestante("Intervalo já acabou.");
@@ -77,9 +91,7 @@ export default function TempoIntervalo() {
     const totalSegundos = Math.floor(ms / 1000);
     const minutos = Math.floor(totalSegundos / 60);
     const segundos = totalSegundos % 60;
-    return `${minutos.toString().padStart(2, "0")}:${segundos
-      .toString()
-      .padStart(2, "0")}`;
+    return `${minutos.toString().padStart(2, "0")}:${segundos.toString().padStart(2, "0")}`;
   }
 
   return (
