@@ -8,8 +8,10 @@ import {
   Alert,
 } from "react-native";
 import usuarios from "../data/usuarios.json"; 
+import { useTime } from '../TimeContext';
 
 export default function Login({ navigation }) {
+  const { tempoRestante } = useTime();
   const [isAdm, setIsAdm] = useState(true);
   const [matricula, setMatricula] = useState("");
   const [senha, setSenha] = useState("");
