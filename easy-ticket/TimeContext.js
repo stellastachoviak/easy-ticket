@@ -6,14 +6,28 @@ export function TimeProvider({ children }) {
   const [ticketLiberado, setTicketLiberado] = useState(false);
   const [intervaloAtivo, setIntervaloAtivo] = useState(false);
   const [tempoRestante, setTempoRestante] = useState(0);
-  const [mensagem, setMensagem] = useState(""); // texto auxiliar
+  const [mensagem, setMensagem] = useState(""); 
+
+  // 🔹 Controle de horário manual
+  const [usarHorarioManual, setUsarHorarioManual] = useState(false);
+  const [horaManual, setHoraManual] = useState(14);
+  const [minutoManual, setMinutoManual] = useState(50);
+  const [segundoManual, setSegundoManual] = useState(0);
 
   useEffect(() => {
     function atualizarTempo() {
-      const agoraUTC = new Date();
+      let agoraBRT;
 
-      // Converte para BRT (UTC-3)
-      const agoraBRT = new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
+      if (usarHorarioManual) {
+        // Simula horário manual em BRT
+        agoraBRT = new Date();
+        agoraBRT.setHours(horaManual, minutoManual, segundoManual, 0);
+      } else {
+        // Hora real BRT (UTC-3)
+        const agoraUTC = new Date();
+        agoraBRT = new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
+      }
+
       const diaSemana = agoraBRT.getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
 
       // só funciona de segunda (1) até quinta (4)
@@ -61,15 +75,20 @@ export function TimeProvider({ children }) {
     atualizarTempo();
     const timer = setInterval(atualizarTempo, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [usarHorarioManual, horaManual, minutoManual, segundoManual]);
 
   return (
     <TimeContext.Provider
       value={{
         ticketLiberado,
         intervaloAtivo,
-        tempoRestante, // sempre número
-        mensagem,      // texto adicional
+        tempoRestante,
+        mensagem,
+        usarHorarioManual,
+        setUsarHorarioManual,
+        setHoraManual,
+        setMinutoManual,
+        setSegundoManual,
       }}
     >
       {children}
