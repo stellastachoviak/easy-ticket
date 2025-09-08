@@ -1,71 +1,64 @@
 import React, { useState, useEffect } from "react";
-import {View,Text,TextInput,TouchableOpacity,FlatList,StyleSheet,} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useTime } from '../TimeContext';
+import { Picker } from "@react-native-picker/picker";
+
 export default function TelaAdm() {
-  const { tempoRestante } = useTime();
-  const [nome, setNome] = useState("")
-  const [matricula, setMatricula] = useState("")
-  const [alunos, setAlunos] = useState([])
-  useEffect(() => {
-    carregarAlunos()
-  }, [])
+  const [nome, setNome] = useState("");
+  const [matricula, setMatricula] = useState("");
+  const [turma, setTurma] = useState("Desi-V1");
+  const [alunos, setAlunos] = useState([]);
+
+  useEffect(() => { carregarAlunos(); }, []);
+
   const carregarAlunos = async () => {
     try {
       const json = await AsyncStorage.getItem("alunos");
-      if (json != null) {
-        setAlunos(JSON.parse(json))
-      }
-    } catch (e) {
-      console.log("Erro ao carregar alunos", e)
-    }
-  }
+      if (json) setAlunos(JSON.parse(json));
+    } catch (e) { console.log("Erro ao carregar alunos", e); }
+  };
+
   const salvarAluno = async () => {
     if (!nome || !matricula) {
-      alert("Preencha todos os campos")
-      return
+      alert("Preencha todos os campos");
+      return;
     }
-    const novoAluno = { nome, matricula }
-
+    const novoAluno = { nome, matricula, turma };
     try {
       const listaAtualizada = [...alunos, novoAluno];
       await AsyncStorage.setItem("alunos", JSON.stringify(listaAtualizada));
       setAlunos(listaAtualizada);
-      setNome("")
-      setMatricula("")
-    } catch (e) {
-      console.log("Erro ao salvar aluno", e)
-    }
+      setNome(""); setMatricula(""); setTurma("Desi-V1");
+    } catch (e) { console.log("Erro ao salvar aluno", e); }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Painel do Administrador</Text>
 
+      <TextInput style={styles.input} placeholder="Nome do aluno" value={nome} onChangeText={setNome} />
+      <TextInput style={styles.input} placeholder="Matrícula" value={matricula} onChangeText={setMatricula} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome do aluno"
-        value={nome}
-        onChangeText={setNome}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Matrícula"
-        value={matricula}
-        onChangeText={setMatricula}
-      />
+      <View style={styles.pickerContainer}>
+        <Text style={styles.label}>Turma:</Text>
+        <Picker selectedValue={turma} style={styles.picker} onValueChange={setTurma}>
+          <Picker.Item label="Desi-V1" value="Desi-V1" />
+          <Picker.Item label="Desi-V2" value="Desi-V2" />
+          <Picker.Item label="Desi-V3" value="Desi-V3" />
+        </Picker>
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={salvarAluno}>
         <Text style={styles.buttonText}>Cadastrar Aluno</Text>
       </TouchableOpacity>
+
       <Text style={styles.subtitle}>Alunos cadastrados:</Text>
       <FlatList
         data={alunos}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.itemText}>
-              {item.nome} - {item.matricula}
-            </Text>
+            <Text style={styles.itemText}>{item.nome} - {item.matricula} - {item.turma}</Text>
           </View>
         )}
       />
@@ -84,6 +77,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: "#fff",
   },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+  },
+  label: { marginLeft: 10, marginTop: 5, fontWeight: "bold" },
+  picker: { height: 50, width: "100%" },
   button: {
     backgroundColor: "#2979ff",
     padding: 15,

@@ -3,67 +3,43 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const TimeContext = createContext();
 
 export function TimeProvider({ children }) {
-  const [ticketLiberado, setTicketLiberado] = useState(false);
   const [intervaloAtivo, setIntervaloAtivo] = useState(false);
   const [tempoRestante, setTempoRestante] = useState(0);
-  const [mensagem, setMensagem] = useState(""); 
+  const [mensagem, setMensagem] = useState("");
+  const [turmaAtual, setTurmaAtual] = useState(null);
 
-  // 🔹 Controle de horário manual
-  const [usarHorarioManual, setUsarHorarioManual] = useState(false);
-  const [horaManual, setHoraManual] = useState(14);
-  const [minutoManual, setMinutoManual] = useState(50);
-  const [segundoManual, setSegundoManual] = useState(0);
+  const horarios = {
+    "Desi-V1": { inicio: "15:00", fim: "15:15" },
+    "Desi-V2": { inicio: "15:15", fim: "15:30" },
+    "Desi-V3": { inicio: "15:30", fim: "15:45" },
+  };
 
   useEffect(() => {
     function atualizarTempo() {
-      let agoraBRT;
-
-      if (usarHorarioManual) {
-        // Simula horário manual em BRT
-        agoraBRT = new Date();
-        agoraBRT.setHours(horaManual, minutoManual, segundoManual, 0);
-      } else {
-        // Hora real BRT (UTC-3)
-        const agoraUTC = new Date();
-        agoraBRT = new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
-      }
-
-      const diaSemana = agoraBRT.getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
-
-      // só funciona de segunda (1) até quinta (4)
-      if (diaSemana < 1 || diaSemana > 4) {
-        setTicketLiberado(false);
-        setIntervaloAtivo(false);
-        setTempoRestante(0);
-        setMensagem("Hoje não tem intervalo.");
+      if (!turmaAtual) {
+        setMensagem("Nenhuma turma selecionada.");
         return;
       }
 
-      // Definir horários fixos em BRT
-      const inicioTicket = new Date(agoraBRT);
-      inicioTicket.setHours(14, 55, 0, 0);
+      const agora = new Date();
+      const { inicio, fim } = horarios[turmaAtual];
 
-      const inicioIntervalo = new Date(agoraBRT);
-      inicioIntervalo.setHours(15, 0, 0, 0);
+      const [hInicio, mInicio] = inicio.split(":").map(Number);
+      const [hFim, mFim] = fim.split(":").map(Number);
 
-      const fim = new Date(agoraBRT);
-      fim.setHours(15, 15, 0, 0);
+      const inicioIntervalo = new Date(agora);
+      inicioIntervalo.setHours(hInicio, mInicio, 0, 0);
 
-      // Ticket: 14:55 - 15:15
-      if (agoraBRT >= inicioTicket && agoraBRT <= fim) {
-        setTicketLiberado(true);
-      } else {
-        setTicketLiberado(false);
-      }
+      const fimIntervalo = new Date(agora);
+      fimIntervalo.setHours(hFim, mFim, 0, 0);
 
-      // Intervalo: 15:00 - 15:15
-      if (agoraBRT >= inicioIntervalo && agoraBRT <= fim) {
+      if (agora >= inicioIntervalo && agora <= fimIntervalo) {
         setIntervaloAtivo(true);
-        setTempoRestante(Math.floor((fim.getTime() - agoraBRT.getTime()) / 1000));
+        setTempoRestante(Math.floor((fimIntervalo - agora) / 1000));
         setMensagem("");
-      } else if (agoraBRT < inicioIntervalo) {
+      } else if (agora < inicioIntervalo) {
         setIntervaloAtivo(false);
-        setTempoRestante(Math.floor((inicioIntervalo.getTime() - agoraBRT.getTime()) / 1000));
+        setTempoRestante(Math.floor((inicioIntervalo - agora) / 1000));
         setMensagem("Faltam para o intervalo");
       } else {
         setIntervaloAtivo(false);
@@ -75,21 +51,11 @@ export function TimeProvider({ children }) {
     atualizarTempo();
     const timer = setInterval(atualizarTempo, 1000);
     return () => clearInterval(timer);
-  }, [usarHorarioManual, horaManual, minutoManual, segundoManual]);
+  }, [turmaAtual]);
 
   return (
     <TimeContext.Provider
-      value={{
-        ticketLiberado,
-        intervaloAtivo,
-        tempoRestante,
-        mensagem,
-        usarHorarioManual,
-        setUsarHorarioManual,
-        setHoraManual,
-        setMinutoManual,
-        setSegundoManual,
-      }}
+      value={{ intervaloAtivo, tempoRestante, mensagem, turmaAtual, setTurmaAtual }}
     >
       {children}
     </TimeContext.Provider>

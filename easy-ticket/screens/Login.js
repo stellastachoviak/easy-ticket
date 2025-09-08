@@ -9,12 +9,15 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import usuarios from "../data/usuarios.json";
+import { useTime } from "../TimeContext";
 
 export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
   const [matricula, setMatricula] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const { setTurmaAtual } = useTime();
 
   const handleLogin = async () => {
     if (!matricula.trim() || (isAdm && !senha.trim())) {
@@ -23,7 +26,6 @@ export default function Login({ navigation }) {
     }
 
     if (isAdm) {
-      // Verificação de ADM pelo arquivo JSON
       const encontrado = usuarios.admins.find(
         (adm) => adm.matricula === matricula && adm.senha === senha
       );
@@ -35,17 +37,15 @@ export default function Login({ navigation }) {
       }
     } else {
       try {
-        // Carregar alunos do AsyncStorage
         const json = await AsyncStorage.getItem("alunos");
         const alunos = json ? JSON.parse(json) : [];
 
-        // Procurar aluno pela matrícula
         const alunoEncontrado = alunos.find(
           (aluno) => aluno.matricula === matricula
         );
 
         if (alunoEncontrado) {
-          // Enviar o objeto aluno para a tela do aluno
+          setTurmaAtual(alunoEncontrado.turma);
           navigation.navigate("HomeAluno", { aluno: alunoEncontrado });
         } else {
           Alert.alert("Erro", "Matrícula não encontrada!");
@@ -80,7 +80,6 @@ export default function Login({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Matrícula */}
         <TextInput
           style={styles.input}
           placeholder="Matrícula"
@@ -89,7 +88,6 @@ export default function Login({ navigation }) {
           placeholderTextColor="#999"
         />
 
-        {/* Campo senha só para ADM */}
         {isAdm && (
           <View style={styles.passwordContainer}>
             <TextInput
@@ -111,7 +109,6 @@ export default function Login({ navigation }) {
           </View>
         )}
 
-        {/* Botão de login */}
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Log In</Text>
         </TouchableOpacity>
@@ -119,7 +116,6 @@ export default function Login({ navigation }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
