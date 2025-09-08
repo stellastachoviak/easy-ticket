@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+// 🔹 Ajuste aqui para simular horário manual
+const usarHorarioManual = false; // coloque false para usar hora real
+const manualHora = 15;
+const manualMinuto = 0;
+const manualSegundo = 0;
+
 export default function TempoIntervalo() {
   // Horário do intervalo em BRT
   const HORA_INICIO_BRT = 15;
@@ -13,7 +19,17 @@ export default function TempoIntervalo() {
 
   useEffect(() => {
     function atualizarTempo() {
-      const agoraUTC = new Date();
+      let agoraUTC;
+
+      if (usarHorarioManual) {
+        // 🔹 Força horário manual em UTC
+        agoraUTC = new Date();
+        agoraUTC.setUTCHours(manualHora + 3); // converte BRT -> UTC
+        agoraUTC.setUTCMinutes(manualMinuto);
+        agoraUTC.setUTCSeconds(manualSegundo);
+      } else {
+        agoraUTC = new Date();
+      }
 
       // Converte para BRT (UTC-3) para verificar o dia da semana
       const agoraBRT = new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
@@ -53,14 +69,6 @@ export default function TempoIntervalo() {
       console.log(
         "Agora (BRT):",
         `${pad(agoraBRT_Hora)}:${pad(agoraUTC.getUTCMinutes())}:${pad(agoraUTC.getUTCSeconds())}`
-      );
-      console.log(
-        "Início (BRT):",
-        `${pad(HORA_INICIO_BRT)}:${pad(MINUTO_INICIO_BRT)}`
-      );
-      console.log(
-        "Fim (BRT):",
-        `${pad(HORA_FIM_BRT)}:${pad(MINUTO_FIM_BRT)}`
       );
 
       // Antes, durante ou depois do intervalo
