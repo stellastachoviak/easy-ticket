@@ -7,8 +7,8 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import usuarios from "../data/usuarios.json"; 
-import { useTime } from '../TimeContext';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import usuarios from "../data/usuarios.json";
 
 export default function Login({ navigation }) {
   const { tempoRestante } = useTime();
@@ -17,9 +17,14 @@ export default function Login({ navigation }) {
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    if (!matricula.trim() || (isAdm && !senha.trim())) {
+      Alert.alert("Erro", "Preencha todos os campos!");
+      return;
+    }
+
     if (isAdm) {
-     
+      // Verificação de ADM pelo arquivo JSON
       const encontrado = usuarios.admins.find(
         (adm) => adm.matricula === matricula && adm.senha === senha
       );
@@ -30,14 +35,33 @@ export default function Login({ navigation }) {
         Alert.alert("Erro", "Matrícula ou senha inválida!");
       }
     } else {
-      
-      navigation.navigate("HomeAluno");
+      try {
+        // Carregar alunos do AsyncStorage
+        const json = await AsyncStorage.getItem("alunos");
+        const alunos = json ? JSON.parse(json) : [];
+
+        // Procurar aluno pela matrícula
+        const alunoEncontrado = alunos.find(
+          (aluno) => aluno.matricula === matricula
+        );
+
+        if (alunoEncontrado) {
+          // Enviar o objeto aluno para a tela do aluno
+          navigation.navigate("HomeAluno", { aluno: alunoEncontrado });
+        } else {
+          Alert.alert("Erro", "Matrícula não encontrada!");
+        }
+      } catch (e) {
+        console.log("Erro ao verificar aluno", e);
+        Alert.alert("Erro", "Não foi possível verificar a matrícula.");
+      }
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
+        {/* Switch ADM/Aluno */}
         <View style={styles.switchRow}>
           <TouchableOpacity
             style={[styles.switchButton, isAdm && styles.activeSwitch]}
@@ -57,7 +81,7 @@ export default function Login({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        
+        {/* Matrícula */}
         <TextInput
           style={styles.input}
           placeholder="Matrícula"
@@ -66,6 +90,7 @@ export default function Login({ navigation }) {
           placeholderTextColor="#999"
         />
 
+        {/* Campo senha só para ADM */}
         {isAdm && (
           <View style={styles.passwordContainer}>
             <TextInput
@@ -87,6 +112,7 @@ export default function Login({ navigation }) {
           </View>
         )}
 
+        {/* Botão de login */}
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Log In</Text>
         </TouchableOpacity>
@@ -94,6 +120,7 @@ export default function Login({ navigation }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
