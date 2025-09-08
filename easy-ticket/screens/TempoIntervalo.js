@@ -8,7 +8,6 @@ const manualMinuto = 0;
 const manualSegundo = 0;
 
 export default function TempoIntervalo() {
-  // Horário do intervalo em BRT
   const HORA_INICIO_BRT = 15;
   const MINUTO_INICIO_BRT = 0;
   const HORA_FIM_BRT = 15;
@@ -22,32 +21,28 @@ export default function TempoIntervalo() {
       let agoraUTC;
 
       if (usarHorarioManual) {
-        // 🔹 Força horário manual em UTC
         agoraUTC = new Date();
-        agoraUTC.setUTCHours(manualHora + 3); // converte BRT -> UTC
+        agoraUTC.setUTCHours(manualHora + 3);
         agoraUTC.setUTCMinutes(manualMinuto);
         agoraUTC.setUTCSeconds(manualSegundo);
       } else {
         agoraUTC = new Date();
       }
 
-      // Converte para BRT (UTC-3) para verificar o dia da semana
       const agoraBRT = new Date(agoraUTC.getTime() - 3 * 60 * 60 * 1000);
-      const diaSemanaBRT = agoraBRT.getDay(); // 0=Dom, 1=Seg, ..., 4=Qui, 5=Sex, 6=Sab
+      const diaSemanaBRT = agoraBRT.getDay();
 
-      // Verifica se hoje é segunda a quinta
       if (diaSemanaBRT < 1 || diaSemanaBRT > 4) {
         setIntervaloAtivo(false);
         setTempoRestante("Hoje não tem intervalo.");
         return;
       }
 
-      // Define início e fim do intervalo em UTC
       const inicioUTC = new Date(Date.UTC(
         agoraUTC.getUTCFullYear(),
         agoraUTC.getUTCMonth(),
         agoraUTC.getUTCDate(),
-        HORA_INICIO_BRT + 3, // 15h BRT = 18h UTC
+        HORA_INICIO_BRT + 3,
         MINUTO_INICIO_BRT,
         0,
         0
@@ -57,30 +52,21 @@ export default function TempoIntervalo() {
         agoraUTC.getUTCFullYear(),
         agoraUTC.getUTCMonth(),
         agoraUTC.getUTCDate(),
-        HORA_FIM_BRT + 3, // 15:15 BRT = 18:15 UTC
+        HORA_FIM_BRT + 3,
         MINUTO_FIM_BRT,
         0,
         0
       ));
 
-      // Logs em BRT
-      const pad = (n) => n.toString().padStart(2, "0");
-      const agoraBRT_Hora = (agoraUTC.getUTCHours() - 3 + 24) % 24;
-      console.log(
-        "Agora (BRT):",
-        `${pad(agoraBRT_Hora)}:${pad(agoraUTC.getUTCMinutes())}:${pad(agoraUTC.getUTCSeconds())}`
-      );
-
-      // Antes, durante ou depois do intervalo
       if (agoraUTC < inicioUTC) {
         setIntervaloAtivo(false);
         setTempoRestante(
-          `Faltam: ${formatarTempo(inicioUTC.getTime() - agoraUTC.getTime())} para o intervalo`
+          `Faltam ${formatarTempo(inicioUTC.getTime() - agoraUTC.getTime())}`
         );
       } else if (agoraUTC >= inicioUTC && agoraUTC <= fimUTC) {
         setIntervaloAtivo(true);
         setTempoRestante(
-          `Tempo restante: ${formatarTempo(fimUTC.getTime() - agoraUTC.getTime())}`
+          `Restam ${formatarTempo(fimUTC.getTime() - agoraUTC.getTime())}`
         );
       } else {
         setIntervaloAtivo(false);
@@ -90,7 +76,6 @@ export default function TempoIntervalo() {
 
     atualizarTempo();
     const timer = setInterval(atualizarTempo, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -104,28 +89,61 @@ export default function TempoIntervalo() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.status}>
-        {intervaloAtivo ? "Intervalo ATIVO" : "Intervalo INATIVO"}
-      </Text>
-      <Text style={styles.timer}>{tempoRestante}</Text>
+      <View style={[styles.card, intervaloAtivo ? styles.cardAtivo : styles.cardInativo]}>
+        <Text style={styles.title}>⏰ Intervalo</Text>
+        <Text style={[styles.status, intervaloAtivo ? styles.ativo : styles.inativo]}>
+          {intervaloAtivo ? "ATIVO" : "INATIVO"}
+        </Text>
+        <Text style={styles.timer}>{tempoRestante}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
+    flex: 1,
+    backgroundColor: "#0b0b2a",
     justifyContent: "center",
-    padding: 10,
+    alignItems: "center",
+    padding: 20,
   },
-  status: {
-    fontSize: 18,
-    marginBottom: 5,
-    color: "#007bff",
+  card: {
+    width: "90%",
+    padding: 25,
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  timer: {
+  cardAtivo: {
+    backgroundColor: "#d1f7d6",
+  },
+  cardInativo: {
+    backgroundColor: "#ffe5e5",
+  },
+  title: {
     fontSize: 22,
     fontWeight: "bold",
+    marginBottom: 10,
+    color: "#222",
+  },
+  status: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  ativo: {
+    color: "#1a8917",
+  },
+  inativo: {
+    color: "#b00020",
+  },
+  timer: {
+    fontSize: 20,
+    fontWeight: "600",
     color: "#333",
   },
 });
