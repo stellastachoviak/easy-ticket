@@ -7,7 +7,10 @@ import ReceberTicketScreen from "./Ticket";
 
 const Tab = createBottomTabNavigator();
 
-export default function HomeAluno() {
+export default function HomeAluno({ route }) {
+  // Pega o aluno que veio do login
+  const aluno = route.params.aluno;
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -25,7 +28,11 @@ export default function HomeAluno() {
       })}
     >
       <Tab.Screen name="Intervalo" component={TempoIntervalo} />
-      <Tab.Screen name="Ticket" component={ReceberTicketScreen} />
+      <Tab.Screen
+        name="Ticket"
+        component={ReceberTicketScreen}
+        initialParams={{ aluno }} // <-- aqui passamos o aluno
+      />
     </Tab.Navigator>
   );
 }

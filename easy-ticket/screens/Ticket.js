@@ -2,97 +2,116 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Button, Alert, StyleSheet } from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
-import { useTime } from '../TimeContext';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTime } from "../TimeContext";
 
-export default function ReceberTicketScreen() {
-  const { ticketLiberado, usarHorarioManual } = useTime();
+export default function ReceberTicketScreen({ route }) {
+  const { aluno } = route.params; // aluno passado na navegação
+  const { ticketLiberado, mensagem } = useTime();
   const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
-  const [ticketRecebido, setTicketRecebido] = useState(false);
-  const [podeReceber, setPodeReceber] = useState(false);
+  const [ticketRecebidoHoje, setTicketRecebidoHoje] = useState(false);
 
   const ESCOLA_COORDS = { latitude: -27.6183, longitude: -48.6628 };
   const RAIO_ESCOLA = 200;
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permissão negada para acessar localização.");
-        return;
-      }
-
-      try {
-        // pede posição atual (alta precisão)
-        let currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Highest,
-        });
-
-        setLocation(currentLocation);
-
-        if (currentLocation?.coords) {
-          const distancia = calcularDistancia(
-            currentLocation.coords.latitude,
-            currentLocation.coords.longitude,
-            ESCOLA_COORDS.latitude,
-            ESCOLA_COORDS.longitude
-          );
-          console.log("distância (m):", distancia);
-          setDentroEscola(distancia <= RAIO_ESCOLA);
-        }
-      } catch (err) {
-        console.error(err);
-        setErrorMsg("Não foi possível obter a localização.");
-      }
-    })();
+    carregarStatusTicket();
+    verificarLocalizacao();
   }, []);
 
-  useEffect(() => {
-    if (usarHorarioManual) {
-      setPodeReceber(ticketLiberado);
-    } else {
-      const agora = new Date();
-      const hora = agora.getHours();
-      const minuto = agora.getMinutes();
-      setPodeReceber((hora === 14 && minuto >= 55) || (hora === 15 && minuto < 15));
-    }
-  }, [ticketLiberado, usarHorarioManual]);
+  // Verifica se o aluno já recebeu o ticket hoje
+  async function carregarStatusTicket() {
+    try {
+      const json = await AsyncStorage.getItem("tickets");
+      const tickets = json ? JSON.parse(json) : {};
+      const hoje = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-  function calcularDistancia(lat1, lon1, lat2, lon2) {
-    // getDistance retorna distância em metros (integer)
-    return getDistance(
-      { latitude: lat1, longitude: lon1 },
-      { latitude: lat2, longitude: lon2 }
-    );
+      if (tickets[aluno.matricula]?.data === hoje && tickets[aluno.matricula]?.recebido) {
+        setTicketRecebidoHoje(true);
+      } else {
+        setTicketRecebidoHoje(false);
+      }
+    } catch (e) {
+      console.log("Erro ao carregar status do ticket", e);
+    }
   }
 
-  function receberTicket() {
-    if (ticketRecebido) {
-      Alert.alert("Atenção", "Você já recebeu seu ticket hoje!");
+  // Verifica se está dentro do raio da escola
+  async function verificarLocalizacao() {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Erro", "Permissão de localização negada.");
       return;
     }
 
-    setTicketRecebido(true);
-    Alert.alert("Sucesso", "Você recebeu seu ticket!");
+    try {
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
+      setLocation(currentLocation);
+
+      if (currentLocation?.coords) {
+        const distancia = getDistance(
+          { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude },
+          { latitude: ESCOLA_COORDS.latitude, longitude: ESCOLA_COORDS.longitude }
+        );
+        setDentroEscola(distancia <= RAIO_ESCOLA);
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Erro", "Não foi possível obter localização.");
+    }
+  }
+
+  async function receberTicket() {
+    if (!ticketLiberado || !dentroEscola) {
+      Alert.alert("Atenção", "Você não pode reivindicar o ticket agora.");
+      return;
+    }
+
+    if (ticketRecebidoHoje) {
+      Alert.alert("Atenção", "Você já reivindicou seu ticket hoje!");
+      return;
+    }
+
+    try {
+      const json = await AsyncStorage.getItem("tickets");
+      const tickets = json ? JSON.parse(json) : {};
+      const hoje = new Date().toISOString().split("T")[0];
+
+      tickets[aluno.matricula] = { recebido: true, data: hoje };
+      await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
+      setTicketRecebidoHoje(true);
+      Alert.alert("Sucesso", "Você recebeu seu ticket!");
+    } catch (e) {
+      console.log("Erro ao salvar ticket", e);
+      Alert.alert("Erro", "Não foi possível salvar o ticket.");
+    }
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Receber Ticket</Text>
 
-      {errorMsg && <Text style={styles.error}>{errorMsg}</Text>}
+      <Button
+        title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
+        onPress={receberTicket}
+        disabled={!ticketLiberado || !dentroEscola || ticketRecebidoHoje}
+      />
 
-      {ticketRecebido ? (
-        <Text style={styles.sucesso}>Ticket disponível!</Text>
-      ) : podeReceber && dentroEscola ? (
-        <Button title="Receber Ticket" onPress={receberTicket} />
-      ) : (
+      {!dentroEscola && (
         <Text style={styles.alert}>
-          {dentroEscola
-            ? "O ticket ainda não está liberado."
-            : `Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
+          {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
         </Text>
+      )}
+
+      {dentroEscola && !ticketLiberado && (
+        <Text style={styles.alert}>{mensagem || "O ticket ainda não está liberado."}</Text>
+      )}
+
+      {ticketRecebidoHoje && (
+        <Text style={styles.sucesso}>Você já reivindicou seu ticket hoje.</Text>
       )}
     </View>
   );
@@ -102,6 +121,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
   alert: { marginTop: 10, fontSize: 16, color: "red", textAlign: "center" },
-  error: { color: "red", marginBottom: 10 },
-  sucesso: { fontSize: 18, fontWeight: "bold", color: "green" },
+  sucesso: { fontSize: 18, fontWeight: "bold", color: "green", marginTop: 10 },
 });

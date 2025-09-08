@@ -56,7 +56,7 @@ export default function Login({ navigation }) {
       }
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.card}>
