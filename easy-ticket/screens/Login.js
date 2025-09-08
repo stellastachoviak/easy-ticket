@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import usuarios from "../data/usuarios.json";
-
+  
 export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
   const [matricula, setMatricula] = useState("");
@@ -56,7 +56,7 @@ export default function Login({ navigation }) {
       }
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.card}>
