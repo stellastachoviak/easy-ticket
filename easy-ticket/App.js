@@ -4,24 +4,30 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./screens/Login";
 import HomeAluno from "./screens/HomeAluno";
 import TelaAdm from "./screens/TelaAdm";
-import TempoIntervalo from "./screens/TempoIntervalo";
-import { TimeProvider } from './TimeContext';
+import { TimeProvider } from "./TimeContext";
 
 const Stack = createNativeStackNavigator();
-
 
 export default function App() {
   return (
     <TimeProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="HomeAluno" component={HomeAluno} options={{
-      headerBackVisible: false,
-      gestureEnabled: false,    
-    }}/>
-          <Stack.Screen name="TelaAdm" component={TelaAdm} />
-          <Stack.Screen name="TempoIntervalo" component={TempoIntervalo} />
+          <Stack.Screen 
+            name="Login" 
+            component={Login} 
+            options={{ headerShown: false }} 
+          />
+          {/* Aqui o HomeAluno já vira só Tab, sem outro Stack dentro */}
+          <Stack.Screen 
+            name="HomeAluno" 
+            component={HomeAluno} 
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="TelaAdm" 
+            component={TelaAdm} 
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </TimeProvider>
