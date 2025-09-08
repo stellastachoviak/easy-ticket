@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import usuarios from "../data/usuarios.json";
 
 export default function Login({ navigation }) {
+  const { tempoRestante } = useTime();
   const [isAdm, setIsAdm] = useState(true);
   const [matricula, setMatricula] = useState("");
   const [senha, setSenha] = useState("");

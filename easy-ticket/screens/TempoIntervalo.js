@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-
-// 🔹 Ajuste aqui para simular horário manual
-const usarHorarioManual = false; // coloque false para usar hora real
-const manualHora = 15;
-const manualMinuto = 0;
-const manualSegundo = 0;
+import { useTime } from "../TimeContext";
 
 export default function TempoIntervalo() {
+<<<<<<< HEAD
   const HORA_INICIO_BRT = 15;
   const MINUTO_INICIO_BRT = 0;
   const HORA_FIM_BRT = 15;
@@ -78,17 +74,23 @@ export default function TempoIntervalo() {
     const timer = setInterval(atualizarTempo, 1000);
     return () => clearInterval(timer);
   }, []);
+=======
+  const { intervaloAtivo, tempoRestante } = useTime();
+>>>>>>> 838a7cf0c396683d693c496b0e13480eddaeeebd
 
   function formatarTempo(ms) {
-    if (ms <= 0) return "00:00";
+    if (typeof ms !== "number" || ms <= 0) return "00:00";
     const totalSegundos = Math.floor(ms / 1000);
     const minutos = Math.floor(totalSegundos / 60);
     const segundos = totalSegundos % 60;
-    return `${minutos.toString().padStart(2, "0")}:${segundos.toString().padStart(2, "0")}`;
+    return `${minutos.toString().padStart(2, "0")}:${segundos
+      .toString()
+      .padStart(2, "0")}`;
   }
 
   return (
     <View style={styles.container}>
+<<<<<<< HEAD
       <View style={[styles.card, intervaloAtivo ? styles.cardAtivo : styles.cardInativo]}>
         <Text style={styles.title}>⏰ Intervalo</Text>
         <Text style={[styles.status, intervaloAtivo ? styles.ativo : styles.inativo]}>
@@ -96,6 +98,16 @@ export default function TempoIntervalo() {
         </Text>
         <Text style={styles.timer}>{tempoRestante}</Text>
       </View>
+=======
+      <Text style={styles.status}>
+        {intervaloAtivo ? "Intervalo ATIVO" : "Intervalo INATIVO"}
+      </Text>
+      <Text style={styles.timer}>
+        {typeof tempoRestante === "number"
+          ? formatarTempo(tempoRestante * 1000)
+          : tempoRestante}
+      </Text>
+>>>>>>> 838a7cf0c396683d693c496b0e13480eddaeeebd
     </View>
   );
 }

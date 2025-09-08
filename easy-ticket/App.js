@@ -5,21 +5,25 @@ import Login from "./screens/Login";
 import HomeAluno from "./screens/HomeAluno";
 import TelaAdm from "./screens/TelaAdm";
 import TempoIntervalo from "./screens/TempoIntervalo";
+import { TimeProvider } from './TimeContext';
+
 const Stack = createNativeStackNavigator();
 
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="HomeAluno" component={HomeAluno} options={{
-    headerBackVisible: false,
-    gestureEnabled: false,    
-  }}/>
-        <Stack.Screen name="TelaAdm" component={TelaAdm} />
-        <Stack.Screen name="TempoIntervalo" component={TempoIntervalo} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <TimeProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="HomeAluno" component={HomeAluno} options={{
+      headerBackVisible: false,
+      gestureEnabled: false,    
+    }}/>
+          <Stack.Screen name="TelaAdm" component={TelaAdm} />
+          <Stack.Screen name="TempoIntervalo" component={TempoIntervalo} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </TimeProvider>
   );
 }

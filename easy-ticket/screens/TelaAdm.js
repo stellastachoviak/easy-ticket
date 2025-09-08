@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {View,Text,TextInput,TouchableOpacity,FlatList,StyleSheet,} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTime } from '../TimeContext';
 export default function TelaAdm() {
+  const { tempoRestante } = useTime();
   const [nome, setNome] = useState("")
   const [matricula, setMatricula] = useState("")
   const [alunos, setAlunos] = useState([])
