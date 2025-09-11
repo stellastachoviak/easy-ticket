@@ -6,8 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTime } from "../TimeContext";
 
 export default function ReceberTicketScreen({ route }) {
-  const { aluno } = route.params; // aluno passado na navegação
-  const { ticketLiberado, mensagem } = useTime();
+  const { aluno } = route.params; 
+  const { intervaloAtivo, mensagem, turmaAtual } = useTime();
   const [location, setLocation] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
   const [ticketRecebidoHoje, setTicketRecebidoHoje] = useState(false);
@@ -18,14 +18,18 @@ export default function ReceberTicketScreen({ route }) {
   useEffect(() => {
     carregarStatusTicket();
     verificarLocalizacao();
-  }, []);
+    // LOGS PARA DIAGNÓSTICO
+    console.log('intervaloAtivo:', intervaloAtivo);
+    console.log('mensagem:', mensagem);
+    console.log('turmaAtual:', turmaAtual);
+    console.log('aluno:', aluno);
+  }, [intervaloAtivo, turmaAtual, mensagem]);
 
-  // Verifica se o aluno já recebeu o ticket hoje
   async function carregarStatusTicket() {
     try {
       const json = await AsyncStorage.getItem("tickets");
       const tickets = json ? JSON.parse(json) : {};
-      const hoje = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+      const hoje = new Date().toISOString().split("T")[0];
 
       if (tickets[aluno.matricula]?.data === hoje && tickets[aluno.matricula]?.recebido) {
         setTicketRecebidoHoje(true);
@@ -37,7 +41,6 @@ export default function ReceberTicketScreen({ route }) {
     }
   }
 
-  // Verifica se está dentro do raio da escola
   async function verificarLocalizacao() {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -64,40 +67,44 @@ export default function ReceberTicketScreen({ route }) {
     }
   }
 
-  async function receberTicket() {
-    if (!ticketLiberado || !dentroEscola) {
-      Alert.alert("Atenção", "Você não pode reivindicar o ticket agora.");
-      return;
-    }
-
-    if (ticketRecebidoHoje) {
-      Alert.alert("Atenção", "Você já reivindicou seu ticket hoje!");
-      return;
-    }
-
-    try {
-      const json = await AsyncStorage.getItem("tickets");
-      const tickets = json ? JSON.parse(json) : {};
-      const hoje = new Date().toISOString().split("T")[0];
-
-      tickets[aluno.matricula] = { recebido: true, data: hoje };
-      await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
-      setTicketRecebidoHoje(true);
-      Alert.alert("Sucesso", "Você recebeu seu ticket!");
-    } catch (e) {
-      console.log("Erro ao salvar ticket", e);
-      Alert.alert("Erro", "Não foi possível salvar o ticket.");
-    }
+async function receberTicket() {
+  if (!intervaloAtivo || !dentroEscola) {
+    Alert.alert("Atenção", "Você não pode reivindicar o ticket agora.");
+    return;
   }
+
+  if (ticketRecebidoHoje) {
+    Alert.alert("Atenção", "Você já reivindicou seu ticket hoje!");
+    return;
+  }
+
+  try {
+    const json = await AsyncStorage.getItem("tickets");
+    const tickets = json ? JSON.parse(json) : {};
+    const hoje = new Date().toISOString().split("T")[0];
+    const matriculaKey = String(aluno.matricula); 
+    tickets[matriculaKey] = { recebido: true, data: hoje, usado: false };
+
+    await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
+    setTicketRecebidoHoje(true);
+    Alert.alert("Sucesso", "Você recebeu seu ticket!");
+  } catch (e) {
+    console.log("Erro ao salvar ticket", e);
+    Alert.alert("Erro", "Não foi possível salvar o ticket.");
+  }
+}
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Receber Ticket</Text>
-
+      <Text style={{fontSize:12, color:'gray'}}>
+        {` intervaloAtivo=${intervaloAtivo ? 'true' : 'false'}, turmaAtual=${turmaAtual}, mensagem=${mensagem},usado=${ticketRecebidoHoje}`}
+      </Text>
       <Button
         title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
         onPress={receberTicket}
-        disabled={!ticketLiberado || !dentroEscola || ticketRecebidoHoje}
+        disabled={!intervaloAtivo || !dentroEscola || ticketRecebidoHoje}
       />
 
       {!dentroEscola && (
@@ -106,7 +113,7 @@ export default function ReceberTicketScreen({ route }) {
         </Text>
       )}
 
-      {dentroEscola && !ticketLiberado && (
+      {dentroEscola && !intervaloAtivo && (
         <Text style={styles.alert}>{mensagem || "O ticket ainda não está liberado."}</Text>
       )}
 

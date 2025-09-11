@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 
@@ -32,6 +32,18 @@ export default function TelaAdm() {
     } catch (e) { console.log("Erro ao salvar aluno", e); }
   };
 
+  // ✅ Função para resetar tickets
+const resetarAsyncStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log("AsyncStorage limpo!");
+    alert("AsyncStorage limpo!");
+  } catch (e) {
+    console.log("Erro ao limpar AsyncStorage", e);
+  }
+};
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Painel do Administrador</Text>
@@ -50,6 +62,11 @@ export default function TelaAdm() {
 
       <TouchableOpacity style={styles.button} onPress={salvarAluno}>
         <Text style={styles.buttonText}>Cadastrar Aluno</Text>
+      </TouchableOpacity>
+
+      {/* Botão de reset de tickets */}
+      <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
+        <Text style={styles.buttonText}>Resetar Tickets</Text>
       </TouchableOpacity>
 
       <Text style={styles.subtitle}>Alunos cadastrados:</Text>
@@ -91,7 +108,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   subtitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },

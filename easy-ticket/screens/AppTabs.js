@@ -5,6 +5,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import HomeAluno from "./HomeAluno";
 import TempoIntervalo from "./TempoIntervalo";
 import Ticket from "./Ticket"; // se você já tiver essa tela
+import UsarTicket from "./UsarTicket";
 
 const Tab = createBottomTabNavigator();
 
@@ -25,15 +26,18 @@ export default function AppTabs() {
             iconName = "time-outline";
           } else if (route.name === "Ticket") {
             iconName = "ticket-outline";
+          } else if (route.name === "UsarTicket") {
+            iconName = "checkmark-done-outline";
           }
 
           return <Icon name={iconName} size={size} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Principal" component={HomeAluno} />
-      <Tab.Screen name="Intervalo" component={TempoIntervalo} />
-      <Tab.Screen name="Ticket" component={Ticket} />
+  <Tab.Screen name="Principal" component={HomeAluno} />
+  <Tab.Screen name="Intervalo" component={TempoIntervalo} />
+  <Tab.Screen name="Ticket" component={Ticket} />
+  <Tab.Screen name="UsarTicket" component={UsarTicket} />
     </Tab.Navigator>
   );
 }

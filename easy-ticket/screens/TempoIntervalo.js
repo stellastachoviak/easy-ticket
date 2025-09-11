@@ -6,11 +6,25 @@ export default function TempoIntervalo() {
   const { intervaloAtivo, tempoRestante, mensagem, turmaAtual } = useTime();
 
   function formatarTempo(segundos) {
-    if (segundos <= 0) return "00:00";
-    const min = Math.floor(segundos / 60);
-    const sec = segundos % 60;
-    return `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  if (segundos <= 0) return "00:00";
+
+  const horas = Math.floor(segundos / 3600);
+  const minutos = Math.floor((segundos % 3600) / 60);
+  const sec = segundos % 60;
+
+  if (horas > 0) {
+    return `${horas}h ${minutos}min`;
   }
+
+  if (minutos >= 1) {
+    return `${minutos.toString().padStart(2, "0")}:${sec
+      .toString()
+      .padStart(2, "0")}`;
+  }
+
+  return `00:${sec.toString().padStart(2, "0")}`;
+}
+
 
   return (
     <View style={styles.container}>
@@ -20,8 +34,10 @@ export default function TempoIntervalo() {
           {intervaloAtivo ? "ATIVO" : "INATIVO"}
         </Text>
         <Text style={styles.timer}>
-          {mensagem || formatarTempo(tempoRestante)}
-        </Text>
+  {mensagem
+    ? `${mensagem}: ${formatarTempo(tempoRestante)}`
+    : formatarTempo(tempoRestante)}
+</Text>
       </View>
     </View>
   );

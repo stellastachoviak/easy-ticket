@@ -28,6 +28,11 @@ export default function App() {
             name="TelaAdm" 
             component={TelaAdm} 
           />
+          <Stack.Screen 
+            name="UsarTicket" 
+            component={require('./screens/UsarTicket').default} 
+            options={{ headerShown: false }} 
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </TimeProvider>
