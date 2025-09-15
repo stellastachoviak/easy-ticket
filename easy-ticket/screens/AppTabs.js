@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import TempoIntervalo from "./TempoIntervalo";
 import ReceberTicketScreen from "./Ticket"; 

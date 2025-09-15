@@ -81,16 +81,6 @@ export default function UsarTicket({ navigation }) {
       logs.push(log);
       await AsyncStorage.setItem("ticket_logs", JSON.stringify(logs));
 
-      // Envio remoto (opcional)
-      try {
-        await fetch("https://seu-endpoint-para-logs.com/log", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(log),
-        });
-      } catch (e) {
-        console.log("Erro ao enviar log remoto", e);
-      }
 
       setTimeout(() => {
         navigation.goBack();
