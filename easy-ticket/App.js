@@ -6,6 +6,7 @@ import HomeAluno from "./screens/HomeAluno";
 import TelaAdm from "./screens/TelaAdm";
 import { TimeProvider } from "./TimeContext";
 import HistoricoTickets from "./screens/HistoricoTickets";
+import StatusTicketsHoje from "./screens/StatusTicketsHoje";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ export default function App() {
           <Stack.Screen 
             name="TelaAdm" 
             component={TelaAdm} 
+            options={{ headerShown: false }} 
           />
           <Stack.Screen 
             name="UsarTicket" 
@@ -37,6 +39,10 @@ export default function App() {
           <Stack.Screen 
             name="HistoricoTickets" 
             component={HistoricoTickets} 
+          />
+          <Stack.Screen 
+            name="StatusTicketsHoje" 
+            component={StatusTicketsHoje} 
           />
         </Stack.Navigator>
       </NavigationContainer>

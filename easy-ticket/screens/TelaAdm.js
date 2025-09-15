@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import HistoricoTickets from "./HistoricoTickets";
+import StatusTicketsHoje from "./StatusTicketsHoje";
 
-export default function TelaAdm() {
-  const navigation = useNavigation();
+const Drawer = createDrawerNavigator();
+
+function PrincipalAdm() {
   const [nome, setNome] = useState("");
   const [matricula, setMatricula] = useState("");
   const [turma, setTurma] = useState("Desi-V1");
@@ -21,65 +23,40 @@ export default function TelaAdm() {
   };
 
   const salvarAluno = async () => {
-    if (!nome || !matricula) {
-      alert("Preencha todos os campos");
-      return;
-    }
+    if (!nome || !matricula || !turma) return;
     const novoAluno = { nome, matricula, turma };
-    try {
-      const listaAtualizada = [...alunos, novoAluno];
-      await AsyncStorage.setItem("alunos", JSON.stringify(listaAtualizada));
-      setAlunos(listaAtualizada);
-      setNome(""); setMatricula(""); setTurma("Desi-V1");
-    } catch (e) { console.log("Erro ao salvar aluno", e); }
+    const novaLista = [...alunos, novoAluno];
+    setAlunos(novaLista);
+    await AsyncStorage.setItem("alunos", JSON.stringify(novaLista));
+    setNome("");
+    setMatricula("");
+    setTurma("Desi-V1");
   };
-
-  // ✅ Função para resetar tickets
-const resetarAsyncStorage = async () => {
-  try {
-    await AsyncStorage.removeItem("tickets");
-    await AsyncStorage.removeItem("ticket_logs");
-    console.log("AsyncStorage limpo!");
-    alert("AsyncStorage limpo!");
-  } catch (e) {
-    console.log("Erro ao limpar AsyncStorage", e);
-  }
-};
-
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Painel do Administrador</Text>
-
-      <TextInput style={styles.input} placeholder="Nome do aluno" value={nome} onChangeText={setNome} />
-      <TextInput style={styles.input} placeholder="Matrícula" value={matricula} onChangeText={setMatricula} />
-
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Turma:</Text>
-        <Picker selectedValue={turma} style={styles.picker} onValueChange={setTurma}>
-          <Picker.Item label="Desi-V1" value="Desi-V1" />
-          <Picker.Item label="Desi-V2" value="Desi-V2" />
-          <Picker.Item label="Desi-V3" value="Desi-V3" />
-        </Picker>
-      </View>
-
+      <Text style={styles.title}>Administração</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nome do aluno"
+        value={nome}
+        onChangeText={setNome}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Matrícula"
+        value={matricula}
+        onChangeText={setMatricula}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Turma"
+        value={turma}
+        onChangeText={setTurma}
+      />
       <TouchableOpacity style={styles.button} onPress={salvarAluno}>
         <Text style={styles.buttonText}>Cadastrar Aluno</Text>
       </TouchableOpacity>
-
-      {/* Botão de reset de tickets */}
-      <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
-        <Text style={styles.buttonText}>Resetar Tickets</Text>
-      </TouchableOpacity>
-
-      {/* Botão para ver histórico de tickets */}
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#4caf50" }]}
-        onPress={() => navigation.navigate("HistoricoTickets")}
-      >
-        <Text style={styles.buttonText}>Ver Histórico de Tickets</Text>
-      </TouchableOpacity>
-
       <Text style={styles.subtitle}>Alunos cadastrados:</Text>
       <FlatList
         data={alunos}
@@ -94,6 +71,16 @@ const resetarAsyncStorage = async () => {
   );
 }
 
+export default function TelaAdm() {
+  return (
+    <Drawer.Navigator initialRouteName="Administração">
+      <Drawer.Screen name="Administração" component={PrincipalAdm} />
+      <Drawer.Screen name="Status dos Tickets de Hoje" component={StatusTicketsHoje} />
+      <Drawer.Screen name="Histórico de Tickets" component={HistoricoTickets} />
+    </Drawer.Navigator>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
@@ -105,15 +92,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: "#fff",
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    marginBottom: 10,
-    backgroundColor: "#fff",
-  },
-  label: { marginLeft: 10, marginTop: 5, fontWeight: "bold" },
-  picker: { height: 50, width: "100%" },
   button: {
     backgroundColor: "#2979ff",
     padding: 15,
