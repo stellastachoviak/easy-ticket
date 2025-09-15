@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
+import { useNavigation } from "@react-navigation/native";
 
 export default function TelaAdm() {
+  const navigation = useNavigation();
   const [nome, setNome] = useState("");
   const [matricula, setMatricula] = useState("");
   const [turma, setTurma] = useState("Desi-V1");
@@ -68,6 +70,14 @@ const resetarAsyncStorage = async () => {
       {/* Botão de reset de tickets */}
       <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
         <Text style={styles.buttonText}>Resetar Tickets</Text>
+      </TouchableOpacity>
+
+      {/* Botão para ver histórico de tickets */}
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "#4caf50" }]}
+        onPress={() => navigation.navigate("HistoricoTickets")}
+      >
+        <Text style={styles.buttonText}>Ver Histórico de Tickets</Text>
       </TouchableOpacity>
 
       <Text style={styles.subtitle}>Alunos cadastrados:</Text>
