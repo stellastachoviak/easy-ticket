@@ -10,10 +10,8 @@ import UsarTicket from "./UsarTicket";
 const Tab = createBottomTabNavigator();
 
 export default function HomeAluno({ navigation, route }) {
-  // Pega o aluno que veio do login
   const aluno = route.params.aluno;
 
-  // Supondo que o ticket do usuário esteja disponível aqui
   const ticket = route?.params?.ticket || { id: "123", usuario: "Aluno", usado: false };
 
   return (

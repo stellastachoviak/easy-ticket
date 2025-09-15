@@ -60,7 +60,7 @@ export default function UsarTicket({ navigation }) {
     try {
       const json = await AsyncStorage.getItem("tickets");
       const tickets = json ? JSON.parse(json) : {};
-      const matricula = String(ticketAtual.usuario); // matrícula do ticket
+      const matricula = String(ticketAtual.matricula); // matrícula do ticket
 
       if (tickets[matricula]) {
         tickets[matricula].usado = true;

@@ -6,7 +6,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTime } from "../TimeContext";
 
 export default function ReceberTicketScreen({ route }) {
-  // tenta pegar aluno via params; se não tiver, fallback será buscá-lo do AsyncStorage
   const alunoParam = route?.params?.aluno;
   const [aluno, setAluno] = useState(alunoParam || null);
 
@@ -106,6 +105,7 @@ export default function ReceberTicketScreen({ route }) {
         data: hoje,
         usado: false,
         usuario: aluno.nome || "",
+        matricula: aluno.matricula,
         turma: turmaAtual || null,
         confirmado: false
       };
