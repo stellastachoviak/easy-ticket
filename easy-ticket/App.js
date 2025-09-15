@@ -5,6 +5,7 @@ import Login from "./screens/Login";
 import HomeAluno from "./screens/HomeAluno";
 import TelaAdm from "./screens/TelaAdm";
 import { TimeProvider } from "./TimeContext";
+import HistoricoTickets from "./screens/HistoricoTickets";
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +33,10 @@ export default function App() {
             name="UsarTicket" 
             component={require('./screens/UsarTicket').default} 
             options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="HistoricoTickets" 
+            component={HistoricoTickets} 
           />
         </Stack.Navigator>
       </NavigationContainer>
