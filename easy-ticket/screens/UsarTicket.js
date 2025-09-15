@@ -1,36 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTime } from "../TimeContext";
 
-export default function UsarTicket({ route, navigation }) {
+export default function UsarTicket({ navigation }) {
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [ticketValido, setTicketValido] = useState(false);
-  const [alunoMatricula, setAlunoMatricula] = useState(null);
+  const [ticketAtual, setTicketAtual] = useState(null);
+
   const { turmaAtual } = useTime();
-  const aluno = route?.params?.aluno;
 
   useEffect(() => {
-    async function verificarTicket() {
-      if (!aluno || !aluno.matricula) {
-        setTicketValido(false);
-        return;
-      }
-      setAlunoMatricula(aluno.matricula);
-      const json = await AsyncStorage.getItem("tickets");
-      const tickets = json ? JSON.parse(json) : {};
-      const hoje = new Date().toISOString().split("T")[0];
-      const ticketInfo = tickets[aluno.matricula];
-      if (ticketInfo && ticketInfo.recebido && ticketInfo.data === hoje && !ticketInfo.usado) {
-        setTicketValido(true);
-      } else {
+    async function carregarTicket() {
+      try {
+        const json = await AsyncStorage.getItem("tickets");
+        const tickets = json ? JSON.parse(json) : {};
+        const hoje = new Date().toISOString().split("T")[0];
+
+        // Procura um ticket válido para hoje
+        const ticketEncontrado = Object.values(tickets).find(
+          (t) => t.recebido && !t.usado && t.data === hoje
+        );
+
+        if (ticketEncontrado) {
+          setTicketValido(true);
+          setTicketAtual(ticketEncontrado);
+        } else {
+          setTicketValido(false);
+          setTicketAtual(null);
+        }
+      } catch (e) {
+        console.log("Erro ao carregar tickets", e);
         setTicketValido(false);
       }
     }
-    verificarTicket();
-  }, [aluno]);
+
+    carregarTicket();
+  }, []);
 
   const handleConfirmarPresenca = () => {
     setModalVisible(false);
@@ -45,46 +53,57 @@ export default function UsarTicket({ route, navigation }) {
       Alert.alert("Ticket já foi usado ou não encontrado.");
       return;
     }
+
     setTicketUsado(true);
     setFeedback("Ticket usado com sucesso!");
+
     try {
       const json = await AsyncStorage.getItem("tickets");
       const tickets = json ? JSON.parse(json) : {};
-      if (alunoMatricula && tickets[alunoMatricula]) {
-        tickets[alunoMatricula].usado = true;
+      const matricula = String(ticketAtual.usuario); // matrícula do ticket
+
+      if (tickets[matricula]) {
+        tickets[matricula].usado = true;
         await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
       }
+
       const log = {
         data: new Date().toISOString(),
-        ticketId: alunoMatricula,
-        turma: turmaAtual,
-        usuario: aluno?.nome || "Aluno",
-        acao: "Ticket usado"
+        ticketId: matricula,
+        turma: ticketAtual.turma || turmaAtual,
+        usuario: ticketAtual.usuario,
+        acao: "Ticket usado",
       };
+
+      // Salva log local
       const logsRaw = await AsyncStorage.getItem("ticket_logs");
       const logs = logsRaw ? JSON.parse(logsRaw) : [];
       logs.push(log);
       await AsyncStorage.setItem("ticket_logs", JSON.stringify(logs));
-      await fetch("https://seu-endpoint-para-logs.com/log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(log)
-      });
+
+      // Envio remoto (opcional)
+      try {
+        await fetch("https://seu-endpoint-para-logs.com/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(log),
+        });
+      } catch (e) {
+        console.log("Erro ao enviar log remoto", e);
+      }
+
       setTimeout(() => {
         navigation.goBack();
       }, 1500);
     } catch (e) {
+      console.log("Erro ao usar ticket", e);
       setFeedback("Erro ao registrar o uso do ticket.");
     }
   };
 
   return (
     <View style={styles.container}>
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType="fade"
-      >
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
@@ -96,17 +115,21 @@ export default function UsarTicket({ route, navigation }) {
           </View>
         </View>
       </Modal>
+
       <Text style={styles.title}>Usar Ticket</Text>
+
       <Button
         title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
         onPress={handleUsarTicket}
         disabled={!ticketValido || ticketUsado}
       />
-      {!ticketValido && (
+
+      {!ticketValido && !ticketUsado && (
         <Text style={{ color: "red", marginTop: 20 }}>
           Você não possui um ticket válido para usar.
         </Text>
       )}
+
       {feedback ? <Text style={styles.feedback}>{feedback}</Text> : null}
     </View>
   );

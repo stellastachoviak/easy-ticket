@@ -35,7 +35,8 @@ export default function TelaAdm() {
   // ✅ Função para resetar tickets
 const resetarAsyncStorage = async () => {
   try {
-    await AsyncStorage.clear();
+    await AsyncStorage.removeItem("tickets");
+    await AsyncStorage.removeItem("ticket_logs");
     console.log("AsyncStorage limpo!");
     alert("AsyncStorage limpo!");
   } catch (e) {

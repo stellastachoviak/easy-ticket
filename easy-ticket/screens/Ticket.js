@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, Alert, StyleSheet } from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
@@ -6,7 +6,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTime } from "../TimeContext";
 
 export default function ReceberTicketScreen({ route }) {
-  const { aluno } = route.params; 
+  // tenta pegar aluno via params; se não tiver, fallback será buscá-lo do AsyncStorage
+  const alunoParam = route?.params?.aluno;
+  const [aluno, setAluno] = useState(alunoParam || null);
+
   const { intervaloAtivo, mensagem, turmaAtual } = useTime();
   const [location, setLocation] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
@@ -16,26 +19,42 @@ export default function ReceberTicketScreen({ route }) {
   const RAIO_ESCOLA = 200;
 
   useEffect(() => {
+    (async () => {
+      if (!alunoParam) {
+        try {
+          const raw = await AsyncStorage.getItem("usuarioLogado");
+          if (raw) setAluno(JSON.parse(raw));
+        } catch (e) {
+          console.log("Erro ao ler usuarioLogado:", e);
+        }
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    // recarrega status (e funciona quando aluno muda)
     carregarStatusTicket();
     verificarLocalizacao();
-    // LOGS PARA DIAGNÓSTICO
     console.log('intervaloAtivo:', intervaloAtivo);
     console.log('mensagem:', mensagem);
     console.log('turmaAtual:', turmaAtual);
     console.log('aluno:', aluno);
-  }, [intervaloAtivo, turmaAtual, mensagem]);
+  }, [intervaloAtivo, turmaAtual, mensagem, aluno]);
 
   async function carregarStatusTicket() {
+    if (!aluno?.matricula) {
+      setTicketRecebidoHoje(false);
+      return;
+    }
     try {
       const json = await AsyncStorage.getItem("tickets");
       const tickets = json ? JSON.parse(json) : {};
       const hoje = new Date().toISOString().split("T")[0];
-
-      if (tickets[aluno.matricula]?.data === hoje && tickets[aluno.matricula]?.recebido) {
-        setTicketRecebidoHoje(true);
-      } else {
-        setTicketRecebidoHoje(false);
-      }
+      const key = String(aluno.matricula);
+      const info = tickets[key];
+      const recebeuHoje = !!(info && info.data === hoje && info.recebido);
+      setTicketRecebidoHoje(recebeuHoje);
+      console.log("carregarStatusTicket -> tickets:", tickets);
     } catch (e) {
       console.log("Erro ao carregar status do ticket", e);
     }
@@ -49,9 +68,7 @@ export default function ReceberTicketScreen({ route }) {
     }
 
     try {
-      const currentLocation = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Highest,
-      });
+      const currentLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
       setLocation(currentLocation);
 
       if (currentLocation?.coords) {
@@ -67,40 +84,49 @@ export default function ReceberTicketScreen({ route }) {
     }
   }
 
-async function receberTicket() {
-  if (!intervaloAtivo || !dentroEscola) {
-    Alert.alert("Atenção", "Você não pode reivindicar o ticket agora.");
-    return;
+  async function receberTicket() {
+    if (!intervaloAtivo || !dentroEscola) {
+      Alert.alert("Atenção", "Você não pode reivindicar o ticket agora.");
+      return;
+    }
+    if (!aluno?.matricula) {
+      Alert.alert("Erro", "Aluno não identificado.");
+      return;
+    }
+
+    try {
+      const json = await AsyncStorage.getItem("tickets");
+      const tickets = json ? JSON.parse(json) : {};
+      const hoje = new Date().toISOString().split("T")[0];
+      const matriculaKey = String(aluno.matricula);
+
+      // gravar ticket padronizado
+      tickets[matriculaKey] = {
+        recebido: true,
+        data: hoje,
+        usado: false,
+        usuario: aluno.nome || "",
+        turma: turmaAtual || null,
+        confirmado: false
+      };
+
+      await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
+      setTicketRecebidoHoje(true);
+      console.log("receberTicket -> tickets after write:", tickets);
+      Alert.alert("Sucesso", "Você recebeu seu ticket!");
+    } catch (e) {
+      console.log("Erro ao salvar ticket", e);
+      Alert.alert("Erro", "Não foi possível salvar o ticket.");
+    }
   }
-
-  if (ticketRecebidoHoje) {
-    Alert.alert("Atenção", "Você já reivindicou seu ticket hoje!");
-    return;
-  }
-
-  try {
-    const json = await AsyncStorage.getItem("tickets");
-    const tickets = json ? JSON.parse(json) : {};
-    const hoje = new Date().toISOString().split("T")[0];
-    const matriculaKey = String(aluno.matricula); 
-    tickets[matriculaKey] = { recebido: true, data: hoje, usado: false };
-
-    await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
-    setTicketRecebidoHoje(true);
-    Alert.alert("Sucesso", "Você recebeu seu ticket!");
-  } catch (e) {
-    console.log("Erro ao salvar ticket", e);
-    Alert.alert("Erro", "Não foi possível salvar o ticket.");
-  }
-}
-
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Receber Ticket</Text>
       <Text style={{fontSize:12, color:'gray'}}>
-        {` intervaloAtivo=${intervaloAtivo ? 'true' : 'false'}, turmaAtual=${turmaAtual}, mensagem=${mensagem},usado=${ticketRecebidoHoje}`}
+        {`intervaloAtivo=${intervaloAtivo ? 'true' : 'false'}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, recebeuHoje=${ticketRecebidoHoje}`}
       </Text>
+
       <Button
         title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
         onPress={receberTicket}
