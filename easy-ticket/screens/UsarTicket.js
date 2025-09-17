@@ -1,45 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useTime } from "../TimeContext";
+import { useIsFocused } from "@react-navigation/native";
 
-export default function UsarTicket({ navigation }) {
+export default function UsarTicket({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [ticketValido, setTicketValido] = useState(false);
   const [ticketAtual, setTicketAtual] = useState(null);
 
-  const { turmaAtual } = useTime();
+  const usuario = route.params?.usuario;
 
+  const isFocused = useIsFocused();
+
+  // Carrega ticket sempre que a tela está focada ou o usuário muda
   useEffect(() => {
     async function carregarTicket() {
+      if (!usuario?.matricula) {
+        setTicketValido(false);
+        setTicketAtual(null);
+        setTicketUsado(false);
+        return;
+      }
+
       try {
         const json = await AsyncStorage.getItem("tickets");
         const tickets = json ? JSON.parse(json) : {};
         const hoje = new Date().toISOString().split("T")[0];
+        const matricula = String(usuario.matricula);
+        const ticket = tickets[matricula];
 
-        // Procura o ticket do dia, mesmo que já tenha sido usado
-        const ticketEncontrado = Object.values(tickets).find(
-          (t) => t.data === hoje
-        );
+        console.log("Ticket encontrado para matrícula", matricula, ":", ticket);
 
-        if (ticketEncontrado) {
-          setTicketValido(ticketEncontrado.recebido && !ticketEncontrado.usado);
-          setTicketAtual(ticketEncontrado);
+        if (ticket && ticket.data === hoje) {
+          setTicketValido(ticket.recebido && !ticket.usado);
+          setTicketAtual(ticket);
+          setTicketUsado(!!ticket.usado);
         } else {
           setTicketValido(false);
           setTicketAtual(null);
+          setTicketUsado(false);
         }
       } catch (e) {
-        console.log("Erro ao carregar tickets", e);
+        console.log("Erro ao carregar tickets:", e);
         setTicketValido(false);
         setTicketAtual(null);
+        setTicketUsado(false);
       }
     }
 
-    carregarTicket();
-  }, []);
+    if (isFocused) carregarTicket();
+  }, [isFocused, usuario]);
 
   const handleConfirmarPresenca = () => {
     setModalVisible(false);
@@ -61,7 +73,7 @@ export default function UsarTicket({ navigation }) {
     try {
       const json = await AsyncStorage.getItem("tickets");
       const tickets = json ? JSON.parse(json) : {};
-      const matricula = String(ticketAtual.matricula); // matrícula do ticket
+      const matricula = String(ticketAtual.matricula);
 
       if (tickets[matricula]) {
         tickets[matricula].usado = true;
@@ -71,21 +83,15 @@ export default function UsarTicket({ navigation }) {
       const log = {
         data: new Date().toISOString(),
         ticketId: matricula,
-        turma: ticketAtual.turma || turmaAtual,
         usuario: ticketAtual.usuario,
         acao: "Ticket usado",
       };
 
-      // Salva log local
       const logsRaw = await AsyncStorage.getItem("ticket_logs");
       const logs = logsRaw ? JSON.parse(logsRaw) : [];
       logs.push(log);
       await AsyncStorage.setItem("ticket_logs", JSON.stringify(logs));
 
-
-      setTimeout(() => {
-        navigation.goBack();
-      }, 1500);
     } catch (e) {
       console.log("Erro ao usar ticket", e);
       setFeedback("Erro ao registrar o uso do ticket.");
@@ -109,19 +115,15 @@ export default function UsarTicket({ navigation }) {
 
       <Text style={styles.title}>Usar Ticket</Text>
 
-
+      {ticketAtual && (
         <View style={{ marginBottom: 20, alignItems: "center" }}>
           <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
           <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
           <Text style={{ fontSize: 16, marginVertical: 2 }}>
-            Status: {ticketUsado || ticketAtual.usado
-              ? "Usado"
-              : ticketAtual.recebido
-                ? "Válido"
-                : "Inválido"}
+            Status: {ticketUsado || ticketAtual.usado ? "Usado" : ticketAtual.recebido ? "Válido" : "Inválido"}
           </Text>
         </View>
-
+      )}
 
       <Button
         title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
@@ -135,7 +137,7 @@ export default function UsarTicket({ navigation }) {
         </Text>
       )}
 
-      {feedback ? <Text style={styles.feedback}>{feedback}</Text> : null}
+      {feedback && <Text style={styles.feedback}>{feedback}</Text>}
     </View>
   );
 }

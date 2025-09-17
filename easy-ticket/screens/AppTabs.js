@@ -33,7 +33,7 @@ export default function AppTabs({ route }) {
       <Tab.Screen name="Principal" component={HomeAluno} initialParams={{ aluno }} />
       <Tab.Screen name="Intervalo" component={TempoIntervalo} />
       <Tab.Screen name="Ticket" component={ReceberTicketScreen} initialParams={{ aluno }} />
-      <Tab.Screen name="UsarTicket" component={UsarTicket} initialParams={{ aluno }} />
+      <Tab.Screen name="UsarTicket" component={UsarTicket} />
     </Tab.Navigator>
   );
 }

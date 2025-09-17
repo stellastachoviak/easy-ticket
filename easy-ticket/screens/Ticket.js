@@ -6,7 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTime } from "../TimeContext";
 
 export default function ReceberTicketScreen({ route }) {
-  const alunoParam = route?.params?.aluno;
+  const alunoParam = route?.params?.usuario; // Use usuario passado do HomeAluno
   const [aluno, setAluno] = useState(alunoParam || null);
 
   const { intervaloAtivo, mensagem, turmaAtual } = useTime();
@@ -18,26 +18,22 @@ export default function ReceberTicketScreen({ route }) {
   const RAIO_ESCOLA = 200;
 
   useEffect(() => {
-    (async () => {
-      if (!alunoParam) {
+    if (!aluno) {
+      (async () => {
         try {
           const raw = await AsyncStorage.getItem("usuarioLogado");
           if (raw) setAluno(JSON.parse(raw));
         } catch (e) {
           console.log("Erro ao ler usuarioLogado:", e);
         }
-      }
-    })();
+      })();
+    }
   }, []);
 
   useEffect(() => {
-    // recarrega status (e funciona quando aluno muda)
+    if (!aluno) return;
     carregarStatusTicket();
     verificarLocalizacao();
-    console.log('intervaloAtivo:', intervaloAtivo);
-    console.log('mensagem:', mensagem);
-    console.log('turmaAtual:', turmaAtual);
-    console.log('aluno:', aluno);
   }, [intervaloAtivo, turmaAtual, mensagem, aluno]);
 
   async function carregarStatusTicket() {
@@ -53,7 +49,6 @@ export default function ReceberTicketScreen({ route }) {
       const info = tickets[key];
       const recebeuHoje = !!(info && info.data === hoje && info.recebido);
       setTicketRecebidoHoje(recebeuHoje);
-      console.log("carregarStatusTicket -> tickets:", tickets);
     } catch (e) {
       console.log("Erro ao carregar status do ticket", e);
     }
@@ -99,7 +94,6 @@ export default function ReceberTicketScreen({ route }) {
       const hoje = new Date().toISOString().split("T")[0];
       const matriculaKey = String(aluno.matricula);
 
-      // gravar ticket padronizado
       tickets[matriculaKey] = {
         recebido: true,
         data: hoje,
@@ -112,7 +106,6 @@ export default function ReceberTicketScreen({ route }) {
 
       await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
       setTicketRecebidoHoje(true);
-      console.log("receberTicket -> tickets after write:", tickets);
       Alert.alert("Sucesso", "Você recebeu seu ticket!");
     } catch (e) {
       console.log("Erro ao salvar ticket", e);
@@ -123,7 +116,7 @@ export default function ReceberTicketScreen({ route }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Receber Ticket</Text>
-      <Text style={{fontSize:12, color:'gray'}}>
+      <Text style={{ fontSize: 12, color: 'gray' }}>
         {`intervaloAtivo=${intervaloAtivo ? 'true' : 'false'}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, recebeuHoje=${ticketRecebidoHoje}`}
       </Text>
 
