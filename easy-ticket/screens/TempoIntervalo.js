@@ -88,5 +88,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     color: "#333",
+    width:290
   },
 });

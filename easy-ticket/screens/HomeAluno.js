@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/Ionicons";
-import { Button, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { View, ActivityIndicator } from "react-native";
+import * as Font from "expo-font";
 
 import TempoIntervalo from "./TempoIntervalo";
 import ReceberTicketScreen from "./Ticket";
@@ -14,6 +15,26 @@ export default function HomeAluno({ navigation, route }) {
 
   const ticket = route?.params?.ticket || { id: "123", usuario: "Aluno", usado: false };
 
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Carregar fonte Ionicons antes de renderizar o Tab.Navigator
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync(Ionicons.font);
+      setFontsLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" color="#007bff" />
+    </View>
+  );
+}
+
+
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
@@ -22,13 +43,14 @@ export default function HomeAluno({ navigation, route }) {
           headerTitle: "Início",
           tabBarActiveTintColor: "#007bff",
           tabBarInactiveTintColor: "gray",
-          tabBarStyle: { backgroundColor: "#fff", height: 60 },
+          tabBarStyle: { backgroundColor: "#fff", height: 90 },
           tabBarIcon: ({ color, size }) => {
             let iconName;
             if (route.name === "Intervalo") iconName = "time-outline";
             else if (route.name === "Ticket") iconName = "ticket-outline";
             else if (route.name === "UsarTicket") iconName = "checkmark-done-outline";
-            return <Icon name={iconName} size={size} color={color} />;
+
+            return <Ionicons name={iconName} size={size} color={color} />;
           },
         })}
       >
