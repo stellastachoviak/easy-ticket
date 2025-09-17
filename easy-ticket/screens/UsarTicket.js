@@ -19,13 +19,13 @@ export default function UsarTicket({ navigation }) {
         const tickets = json ? JSON.parse(json) : {};
         const hoje = new Date().toISOString().split("T")[0];
 
-        // Procura um ticket válido para hoje
+        // Procura o ticket do dia, mesmo que já tenha sido usado
         const ticketEncontrado = Object.values(tickets).find(
-          (t) => t.recebido && !t.usado && t.data === hoje
+          (t) => t.data === hoje
         );
 
         if (ticketEncontrado) {
-          setTicketValido(true);
+          setTicketValido(ticketEncontrado.recebido && !ticketEncontrado.usado);
           setTicketAtual(ticketEncontrado);
         } else {
           setTicketValido(false);
@@ -34,6 +34,7 @@ export default function UsarTicket({ navigation }) {
       } catch (e) {
         console.log("Erro ao carregar tickets", e);
         setTicketValido(false);
+        setTicketAtual(null);
       }
     }
 
@@ -107,6 +108,20 @@ export default function UsarTicket({ navigation }) {
       </Modal>
 
       <Text style={styles.title}>Usar Ticket</Text>
+
+
+        <View style={{ marginBottom: 20, alignItems: "center" }}>
+          <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
+          <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
+          <Text style={{ fontSize: 16, marginVertical: 2 }}>
+            Status: {ticketUsado || ticketAtual.usado
+              ? "Usado"
+              : ticketAtual.recebido
+                ? "Válido"
+                : "Inválido"}
+          </Text>
+        </View>
+
 
       <Button
         title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
