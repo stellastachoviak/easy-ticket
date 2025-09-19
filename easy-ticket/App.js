@@ -7,20 +7,26 @@ import { TimeProvider } from "./TimeContext";
 import HistoricoTickets from "./screens/HistoricoTickets";
 import StatusTicketsHoje from "./screens/StatusTicketsHoje";
 import AppTabs from "./screens/AppTabs"
+import { AuthProvider, useAuth } from "./AuthContext"
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+function AppNavigator() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; 
+  }
+
   return (
-    <TimeProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName=
+        {user ? 
+        (user.type === 'admin' ? 'TelaAdm' : 'AppTabs') : 'Login'}>          
           <Stack.Screen 
             name="Login" 
             component={Login} 
             options={{ headerShown: false }} 
           />
-          {/* Aqui o HomeAluno já vira só Tab, sem outro Stack dentro */}
           <Stack.Screen 
             name="AppTabs" 
             component={AppTabs} 
@@ -45,7 +51,16 @@ export default function App() {
             component={StatusTicketsHoje} 
           />
         </Stack.Navigator>
-      </NavigationContainer>
-    </TimeProvider>
   );
 }
+export default function App() {
+  return (
+    <AuthProvider>
+      <TimeProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </TimeProvider>
+    </AuthProvider>
+   );
+ }
