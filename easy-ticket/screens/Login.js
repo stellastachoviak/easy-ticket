@@ -46,7 +46,7 @@ export default function Login({ navigation }) {
 
         if (alunoEncontrado) {
           setTurmaAtual(alunoEncontrado.turma);
-          navigation.navigate("HomeAluno", { aluno: alunoEncontrado });
+          navigation.navigate("AppTabs", { aluno: alunoEncontrado });
         } else {
           Alert.alert("Erro", "Matrícula não encontrada!");
         }
