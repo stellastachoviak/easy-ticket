@@ -2,12 +2,12 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./screens/Login";
-import HomeAluno from "./screens/HomeAluno";
 import TelaAdm from "./screens/TelaAdm";
 import { TimeProvider } from "./TimeContext";
 import HistoricoTickets from "./screens/HistoricoTickets";
 import StatusTicketsHoje from "./screens/StatusTicketsHoje";
-import UsarTicket from "./screens/UsarTicket";
+import AppTabs from "./screens/AppTabs"
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -22,8 +22,8 @@ export default function App() {
           />
           {/* Aqui o HomeAluno já vira só Tab, sem outro Stack dentro */}
           <Stack.Screen 
-            name="HomeAluno" 
-            component={HomeAluno} 
+            name="AppTabs" 
+            component={AppTabs} 
             options={{ headerShown: false }} 
           />
           <Stack.Screen 
@@ -31,11 +31,11 @@ export default function App() {
             component={TelaAdm} 
             options={{ headerShown: false }} 
           />
-          <Stack.Screen 
+          {/* <Stack.Screen 
             name="UsarTicket" 
             component={UsarTicket} 
             options={{ headerShown: false }} 
-          />
+          /> */}
           <Stack.Screen 
             name="HistoricoTickets" 
             component={HistoricoTickets} 
