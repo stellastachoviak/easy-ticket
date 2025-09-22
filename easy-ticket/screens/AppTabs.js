@@ -6,12 +6,11 @@ import Icon from "react-native-vector-icons/Ionicons";
 import TempoIntervalo from "./TempoIntervalo";
 import ReceberTicketScreen from "./Ticket";
 import UsarTicket from "./UsarTicket";
-import HomeAluno from "./HomeAluno"; // Importar o HomeAluno refatorado
-
+import HomeAluno from "./HomeAluno";
 const Tab = createBottomTabNavigator();
 
 export default function AppTabs({ route }) {
-  const aluno = route?.params?.aluno; // O aluno virá via props do AuthContext ou params
+  const aluno = route?.params?.aluno; 
 
   return (
     <Tab.Navigator screenOptions={({ route }) => ({

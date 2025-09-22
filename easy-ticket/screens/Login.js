@@ -10,6 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import usuarios from "../data/usuarios.json";
 import { useTime } from "../TimeContext";
+import { useAuth } from "../AuthContext";
 
 export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
@@ -18,6 +19,7 @@ export default function Login({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const { setTurmaAtual } = useTime();
+  const { login } = useAuth(); // Para salvar o usuário logado
 
   const handleLogin = async () => {
     if (!matricula.trim() || (isAdm && !senha.trim())) {
@@ -31,7 +33,15 @@ export default function Login({ navigation }) {
       );
 
       if (encontrado) {
-        navigation.navigate("TelaAdm");
+        // Salva usuário logado
+        await login({ ...encontrado, type: "admin" });
+
+        // Navega para DrawerAdmin usando o Stack que contém o Login
+        navigation.reset({
+  index: 0,
+  routes: [{ name: "DrawerAdmin" }],
+});
+
       } else {
         Alert.alert("Erro", "Matrícula ou senha inválida!");
       }
@@ -46,7 +56,14 @@ export default function Login({ navigation }) {
 
         if (alunoEncontrado) {
           setTurmaAtual(alunoEncontrado.turma);
-          navigation.navigate("AppTabs", { aluno: alunoEncontrado });
+
+          // Salva usuário logado
+          await login({ ...alunoEncontrado, type: "aluno" });
+
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "AppTabs", params: { aluno: alunoEncontrado } }],
+          });
         } else {
           Alert.alert("Erro", "Matrícula não encontrada!");
         }
@@ -56,7 +73,7 @@ export default function Login({ navigation }) {
       }
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>

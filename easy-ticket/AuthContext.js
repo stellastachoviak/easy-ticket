@@ -9,11 +9,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const loadUser = async () => {
-     try {
+      try {
         const storedUser = await AsyncStorage.getItem('user');
         if (storedUser) {
-         setUser(JSON.parse(storedUser));
-      }
+          setUser(JSON.parse(storedUser));
+        }
       } catch (e) {
         console.error('Failed to load user from AsyncStorage', e);
       } finally {
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (userData) => {
-   setUser(userData);
+    setUser(userData);
     await AsyncStorage.setItem('user', JSON.stringify(userData));
   };
 
@@ -40,6 +40,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
