@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { View, ActivityIndicator } from "react-native";
+import styles from '../styles/HomeAlunoStyles';
 import * as Font from "expo-font";
 
 import TempoIntervalo from "./TempoIntervalo";
@@ -24,8 +25,8 @@ export default function HomeAluno({ route }) {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#007bff" />
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#E18B5D" />
       </View>
     );
   }
@@ -35,9 +36,9 @@ export default function HomeAluno({ route }) {
       screenOptions={({ route }) => ({
         headerShown: true,
         headerTitle: "Início",
-        tabBarActiveTintColor: "#007bff",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: { backgroundColor: "#fff", height: 90 },
+        tabBarActiveTintColor: '#E18B5D',
+        tabBarInactiveTintColor: '#B6B6A2',
+        tabBarStyle: { backgroundColor: '#D8BBA5', height: 90, borderTopWidth: 0 },
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === "Intervalo") iconName = "time-outline";
@@ -62,3 +63,5 @@ export default function HomeAluno({ route }) {
     </Tab.Navigator>
   );
 }
+
+

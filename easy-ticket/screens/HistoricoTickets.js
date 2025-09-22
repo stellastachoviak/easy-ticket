@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import styles from '../styles/HistoricoTicketsStyles';
 
 export default function HistoricoTickets() {
   const [logs, setLogs] = useState([]);
@@ -20,10 +21,9 @@ export default function HistoricoTickets() {
         data={logs}
         keyExtractor={(_, idx) => idx.toString()}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.text}>
-              <Text style={{ fontWeight: "bold" }}>{item.usuario}</Text> ({item.turma}) usou o ticket em{" "}
-              {new Date(item.data).toLocaleString()}
+          <View style={styles.ticketItem}>
+            <Text style={styles.ticketText}>
+              <Text style={{ fontWeight: "bold" }}>{item.usuario}</Text> ({item.turma}) usou o ticket em {new Date(item.data).toLocaleString()}
             </Text>
           </View>
         )}
@@ -32,17 +32,3 @@ export default function HistoricoTickets() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
-  item: {
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  text: { fontSize: 15 },
-});

@@ -1,4 +1,3 @@
-// ...existing code...
 import { StyleSheet } from 'react-native';
 
 const COLORS = {
@@ -11,56 +10,62 @@ const COLORS = {
 };
 
 const styles = StyleSheet.create({
-		container: {
-			flex: 1,
-			backgroundColor: COLORS.background,
-			alignItems: 'center',
-			justifyContent: 'center',
-			paddingHorizontal: '5%',
-			paddingVertical: '10%',
-		},
-		form: {
-			width: '100%',
-			maxWidth: 400,
-			alignSelf: 'center',
-			gap: 16,
-		},
+	container: {
+		flex: 1,
+		backgroundColor: COLORS.background,
+		alignItems: 'center',
+		justifyContent: 'center',
+		paddingHorizontal: '5%',
+		paddingVertical: '10%',
+	},
 	row: {
 		flexDirection: 'row',
 		width: '100%',
 		justifyContent: 'space-between',
 		marginBottom: 20,
 	},
-			inputRow: {
-				flexDirection: 'row',
-				alignItems: 'center',
-				backgroundColor: COLORS.input,
-				borderRadius: 20,
-				marginVertical: 8,
-				paddingHorizontal: 16,
-				minHeight: 48,
-				width: '100%',
-				marginBottom: 8,
-			},
-		icon: {
-			color: COLORS.text,
-			marginRight: 8,
-		},
-		button: {
-			backgroundColor: COLORS.button,
-			borderRadius: 20,
+		input: {
+			backgroundColor: COLORS.input,
+			borderRadius: 32,
+			paddingHorizontal: 20,
 			paddingVertical: 14,
-			alignItems: 'center',
-			marginTop: 16,
+			marginVertical: 12,
 			width: '100%',
-			minHeight: 48,
-			justifyContent: 'center',
-		},
-		buttonText: {
+			minHeight: 54,
 			color: COLORS.text,
 			fontSize: 16,
-			fontWeight: 'bold',
+			alignSelf: 'center',
+			shadowColor: '#000',
+			shadowOffset: { width: 0, height: 2 },
+			shadowOpacity: 0.10,
+			shadowRadius: 6,
+			elevation: 3,
 		},
+	icon: {
+		color: COLORS.icon,
+		marginRight: 8,
+	},
+		button: {
+			backgroundColor: COLORS.button,
+			borderRadius: 32,
+			paddingVertical: 14,
+			alignItems: 'center',
+			marginTop: 24,
+			width: '100%',
+			minHeight: 54,
+			justifyContent: 'center',
+			alignSelf: 'center',
+			shadowColor: '#000',
+			shadowOffset: { width: 0, height: 2 },
+			shadowOpacity: 0.10,
+			shadowRadius: 6,
+			elevation: 3,
+		},
+	buttonText: {
+		color: COLORS.text,
+		fontSize: 16,
+		fontWeight: 'bold',
+	},
 	link: {
 		color: COLORS.textSecondary,
 		textDecorationLine: 'underline',

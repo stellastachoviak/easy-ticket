@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, ImageBackground } from "react-native";
 import styles from '../styles/TempoIntervaloStyles';
 import { useTime } from "../TimeContext";
 
@@ -26,20 +26,25 @@ export default function TempoIntervalo() {
   return `00:${sec.toString().padStart(2, "0")}`;
 }
 
-
   return (
-    <View style={styles.container}>
-      <View style={[styles.card, intervaloAtivo ? styles.cardAtivo : styles.cardInativo]}>
-        <Text style={styles.title}>⏰ Intervalo - {turmaAtual || "?"}</Text>
-        <Text style={[styles.status, intervaloAtivo ? styles.ativo : styles.inativo]}>
-          {intervaloAtivo ? "ATIVO" : "INATIVO"}
-        </Text>
-        <Text style={styles.timer}>
-          {mensagem
-            ? `${mensagem}: ${formatarTempo(tempoRestante)}`
-            : formatarTempo(tempoRestante)}
-        </Text>
+    <ImageBackground
+      source={require('../assets/coffe_imgg.png')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <View style={[styles.card, intervaloAtivo ? styles.cardAtivo : styles.cardInativo]}>
+          <Text style={styles.title}>⏰ Intervalo - {turmaAtual || "?"}</Text>
+          <Text style={[styles.status, intervaloAtivo ? styles.ativo : styles.inativo]}>
+            {intervaloAtivo ? "ATIVO" : "INATIVO"}
+          </Text>
+          <Text style={styles.timer}>
+            {mensagem
+              ? `${mensagem}: ${formatarTempo(tempoRestante)}`
+              : formatarTempo(tempoRestante)}
+          </Text>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }

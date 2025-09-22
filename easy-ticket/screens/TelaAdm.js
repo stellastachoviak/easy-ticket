@@ -78,14 +78,12 @@ function PrincipalAdm() {
           <Picker.Item key={turma} label={turma} value={turma} />
         ))}
       </Picker>
-      <View style={{ width: '100%' }}>
-        <TouchableOpacity style={styles.button} onPress={salvarAluno}>
-          <Text style={styles.buttonText}>Cadastrar Aluno</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
-          <Text style={styles.buttonText}>Resetar Tickets</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={salvarAluno}>
+        <Text style={styles.buttonText}>Cadastrar Aluno</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
+        <Text style={styles.buttonText}>Resetar Tickets</Text>
+      </TouchableOpacity>
       <Text style={styles.subtitle}>Alunos cadastrados:</Text>
       <FlatList
         data={alunos}
@@ -109,3 +107,4 @@ export default function TelaAdm() {
     </Drawer.Navigator>
   );
 }
+

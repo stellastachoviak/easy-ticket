@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -99,46 +99,52 @@ export default function UsarTicket({ navigation, route }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>
-              {"Somente o atendente pode receber o ticket.\nClique no X para confirmar que está na presença do atendente."}
-            </Text>
-            <TouchableOpacity style={styles.closeButton} onPress={handleConfirmarPresenca}>
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
+    <ImageBackground
+      source={require('../assets/coffe_imgg.png')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Modal visible={modalVisible} transparent={true} animationType="fade">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>
+                {"Somente o atendente pode receber o ticket.\nClique no X para confirmar que está na presença do atendente."}
+              </Text>
+              <TouchableOpacity style={styles.closeButton} onPress={handleConfirmarPresenca}>
+                <Text style={styles.closeButtonText}>X</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <Text style={styles.title}>Usar Ticket</Text>
+        <Text style={styles.title}>Usar Ticket</Text>
 
-      {ticketAtual && (
-        <View style={{ marginBottom: 20, alignItems: "center" }}>
-          <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
-          <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
-          <Text style={{ fontSize: 16, marginVertical: 2 }}>
-            Status: {ticketUsado || ticketAtual.usado ? "Usado" : ticketAtual.recebido ? "Válido" : "Inválido"}
+        {ticketAtual && (
+          <View style={{ marginBottom: 20, alignItems: "center" }}>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>
+              Status: {ticketUsado || ticketAtual.usado ? "Usado" : ticketAtual.recebido ? "Válido" : "Inválido"}
+            </Text>
+          </View>
+        )}
+
+        <Button
+          title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
+          onPress={handleUsarTicket}
+          disabled={!ticketValido || ticketUsado}
+        />
+
+        {!ticketValido && !ticketUsado && (
+          <Text style={{ color: "red", marginTop: 20 }}>
+            Você não possui um ticket válido para usar.
           </Text>
-        </View>
-      )}
+        )}
 
-      <Button
-        title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
-        onPress={handleUsarTicket}
-        disabled={!ticketValido || ticketUsado}
-      />
-
-      {!ticketValido && !ticketUsado && (
-        <Text style={{ color: "red", marginTop: 20 }}>
-          Você não possui um ticket válido para usar.
-        </Text>
-      )}
-
-      {feedback && <Text style={styles.feedback}>{feedback}</Text>}
-    </View>
+        {feedback && <Text style={styles.feedback}>{feedback}</Text>}
+      </View>
+    </ImageBackground>
   );
 }
 

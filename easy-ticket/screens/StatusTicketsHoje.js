@@ -51,22 +51,3 @@ export default function StatusTicketsHoje() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
-  item: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  info: { fontSize: 15 },
-  status: { fontSize: 15, fontWeight: "bold" },
-  pego: { color: "#388e3c" },
-  naoPego: { color: "#b00020" },
-});
