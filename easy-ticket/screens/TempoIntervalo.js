@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
+import styles from '../styles/TempoIntervaloStyles';
 import { useTime } from "../TimeContext";
 
 export default function TempoIntervalo() {
@@ -34,60 +35,11 @@ export default function TempoIntervalo() {
           {intervaloAtivo ? "ATIVO" : "INATIVO"}
         </Text>
         <Text style={styles.timer}>
-  {mensagem
-    ? `${mensagem}: ${formatarTempo(tempoRestante)}`
-    : formatarTempo(tempoRestante)}
-</Text>
+          {mensagem
+            ? `${mensagem}: ${formatarTempo(tempoRestante)}`
+            : formatarTempo(tempoRestante)}
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0b0b2a",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  card: {
-    width: "90%",
-    padding: 25,
-    borderRadius: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  cardAtivo: {
-    backgroundColor: "#d1f7d6",
-  },
-  cardInativo: {
-    backgroundColor: "#ffe5e5",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#222",
-  },
-  status: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  ativo: {
-    color: "#1a8917",
-  },
-  inativo: {
-    color: "#b00020",
-  },
-  timer: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    width:290
-  },
-});

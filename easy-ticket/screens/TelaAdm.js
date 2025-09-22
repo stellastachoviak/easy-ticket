@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList } from "react-native";
+import styles from '../styles/TelaAdmStyles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import HistoricoTickets from "./HistoricoTickets";
@@ -41,25 +42,23 @@ function PrincipalAdm() {
     setAlunos(novaLista);
     await AsyncStorage.setItem("alunos", JSON.stringify(novaLista));
     setNome("");
-    setMatricula("");
-    setTurma(turmasDisponiveis[0]);
   };
+
   const resetarAsyncStorage = async () => {
     try {
-      await AsyncStorage.removeItem("tickets");
-      await AsyncStorage.removeItem("ticket_logs");
-      console.log("AsyncStorage limpo!");
-      alert("AsyncStorage limpo!");
+      await AsyncStorage.removeItem("alunos");
+      setAlunos([]);
     } catch (e) {
-      console.log("Erro ao limpar AsyncStorage", e);
+      console.log("Erro ao resetar alunos", e);
     }
   };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Administração</Text>
+      <Text style={styles.title}>Cadastro de Alunos</Text>
       <TextInput
         style={styles.input}
-        placeholder="Nome do aluno"
+        placeholder="Nome"
         value={nome}
         onChangeText={setNome}
       />
@@ -68,24 +67,25 @@ function PrincipalAdm() {
         placeholder="Matrícula"
         value={matricula}
         onChangeText={setMatricula}
+        keyboardType="numeric"
       />
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={turma}
-          onValueChange={(itemValue) => setTurma(itemValue)}
-          style={styles.picker}
-        >
-          {turmasDisponiveis.map((t) => (
-            <Picker.Item key={t} label={t} value={t} />
-          ))}
-        </Picker>
+      <Picker
+        selectedValue={turma}
+        style={styles.input}
+        onValueChange={(itemValue) => setTurma(itemValue)}
+      >
+        {turmasDisponiveis.map((turma) => (
+          <Picker.Item key={turma} label={turma} value={turma} />
+        ))}
+      </Picker>
+      <View style={{ width: '100%' }}>
+        <TouchableOpacity style={styles.button} onPress={salvarAluno}>
+          <Text style={styles.buttonText}>Cadastrar Aluno</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
+          <Text style={styles.buttonText}>Resetar Tickets</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button} onPress={salvarAluno}>
-        <Text style={styles.buttonText}>Cadastrar Aluno</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, { backgroundColor: "red", marginBottom: 20 }]} onPress={resetarAsyncStorage}>
-        <Text style={styles.buttonText}>Resetar Tickets</Text>
-      </TouchableOpacity>
       <Text style={styles.subtitle}>Alunos cadastrados:</Text>
       <FlatList
         data={alunos}
@@ -109,46 +109,3 @@ export default function TelaAdm() {
     </Drawer.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-    backgroundColor: "#fff",
-  },
-  button: {
-    backgroundColor: "#2979ff",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  subtitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
-  item: {
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  itemText: { fontSize: 15 },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    marginBottom: 10,
-    backgroundColor: "#fff",
-    overflow: "hidden",
-  },
-  picker: {
-    width: "100%",
-    height: 50,
-  },
-});
