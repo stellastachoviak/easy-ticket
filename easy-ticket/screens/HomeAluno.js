@@ -1,16 +1,15 @@
-
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function HomeAluno({ route }) {
-  const aluno = route.params.aluno; 
+  const aluno = route?.params?.aluno;
 
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bem-vindo, {aluno?.nome || "Aluno"}!</Text>
-      <Text style={styles.subtitle}>Sua matrícula: {aluno?.matricula}</Text>
-      <Text style={styles.subtitle}>Sua turma: {aluno?.turma}</Text>
+      <Text style={styles.subtitle}>Sua matrícula: {aluno?.matricula || "N/A"}</Text>
+      <Text style={styles.subtitle}>Sua turma: {aluno?.turma || "N/A"}</Text>
       <Text style={styles.info}>Use as abas abaixo para navegar.</Text>
     </View>
   );
@@ -42,3 +41,4 @@ const styles = StyleSheet.create({
      textAlign: "center",
    },
  });
+ 

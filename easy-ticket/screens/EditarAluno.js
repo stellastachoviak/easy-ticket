@@ -10,11 +10,13 @@ export default function EditarAluno({ route }) {
   const [matricula, setMatricula] = useState(aluno.matricula);
   const [turma, setTurma] = useState(aluno.turma);
   const [alunos, setAlunos] = useState([]);
+  const [turmasDisponiveis, setTurmasDisponiveis] = useState([]);
 
   const navigation = useNavigation();
 
   useEffect(() => {
     carregarAlunos();
+    carregarTurmas();
   }, []);
 
   const carregarAlunos = async () => {
@@ -23,6 +25,15 @@ export default function EditarAluno({ route }) {
       if (json) setAlunos(JSON.parse(json));
     } catch (e) {
       console.log("Erro ao carregar alunos", e);
+    }
+  };
+
+  const carregarTurmas = async () => {
+    try {
+      const json = await AsyncStorage.getItem("turmas");
+      if (json) setTurmasDisponiveis(JSON.parse(json));
+    } catch (e) {
+      console.log("Erro ao carregar turmas", e);
     }
   };
 
@@ -88,13 +99,18 @@ export default function EditarAluno({ route }) {
         onValueChange={(itemValue) => setTurma(itemValue)}
         style={styles.picker}
       >
-        <Picker.Item label="Desi-V1" value="Desi-V1" />
-        <Picker.Item label="Desi-V2" value="Desi-V2" />
-        <Picker.Item label="Desi-V3" value="Desi-V3" />
+        {turmasDisponiveis.map((t) => (
+          <Picker.Item key={t.nome} label={`${t.nome} (${t.inicio} às ${t.fim})`} value={t.nome} />
+        ))}
       </Picker>
 
-      <TouchableOpacity style={styles.button} onPress={salvarAlteracoes}>
+      <TouchableOpacity style={[styles.button, styles.buttonSpacing]} onPress={salvarAlteracoes}>
         <Text style={styles.buttonText}>Salvar Alterações</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={()=>navigation.goBack()}>
+        <Text style={styles.buttonText}>
+          Voltar para Tela do Admin
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -117,6 +133,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
+  },
+  buttonSpacing: {
+    marginBottom: 12,
   },
   buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
 });

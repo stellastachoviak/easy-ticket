@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (userData) => {
+    // Certifique-se de que userData contém nome, matricula, turma, etc.
     setUser(userData);
     await AsyncStorage.setItem('user', JSON.stringify(userData));
   };

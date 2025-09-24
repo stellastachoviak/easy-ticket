@@ -9,45 +9,27 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import HistoricoTickets from "./HistoricoTickets";
-import StatusTicketsHoje from "./StatusTicketsHoje";
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../AuthContext";
-
-const Drawer = createDrawerNavigator();
-
-function LogoutButton() {
-  const { logout } = useAuth();
-
-  return (
-    <TouchableOpacity
-      style={{ marginRight: 10 }}
-      onPress={() => {
-        Alert.alert("Deslogar", "Deseja realmente sair?", [
-          { text: "Cancelar", style: "cancel" },
-          { text: "Sim", onPress: logout },
-        ]);
-      }}
-    >
-      <Text style={{ color: "#007AFF", fontWeight: "bold" }}>Sair</Text>
-    </TouchableOpacity>
-  );
-}
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 function PrincipalAdm() {
   const [nome, setNome] = useState("");
   const [matricula, setMatricula] = useState("");
-  const [turma, setTurma] = useState("Desi-V1");
+  const [turma, setTurma] = useState("");
   const [alunos, setAlunos] = useState([]);
+  const [turmasDisponiveis, setTurmasDisponiveis] = useState([]);
 
   const navigation = useNavigation();
-  const turmasDisponiveis = ["Desi-V1", "Desi-V2", "Desi-V3"];
 
   useEffect(() => {
     carregarAlunos();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarTurmas();
+    }, [])
+  );
 
   const carregarAlunos = async () => {
     try {
@@ -58,9 +40,42 @@ function PrincipalAdm() {
     }
   };
 
+  const carregarTurmas = async () => {
+    try {
+      const json = await AsyncStorage.getItem("turmas");
+      if (json) {
+        const lista = JSON.parse(json);
+        setTurmasDisponiveis(lista);
+        // Só define turma se não houver uma já selecionada
+        if (lista.length > 0 && !lista.some(t => t.nome === turma)) {
+          setTurma(lista[0].nome);
+        }
+      } else {
+        setTurmasDisponiveis([]);
+        setTurma("");
+      }
+    } catch (e) {
+      console.log("Erro ao carregar turmas", e);
+    }
+  };
+
   const salvarAluno = async () => {
+    // validações
+    const regexNome = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/; // letras + acentos
+    const regexMatricula = /^[0-9]+$/; // apenas números
+
     if (!nome || !matricula || !turma) {
       Alert.alert("Erro", "Todos os campos devem estar preenchidos");
+      return;
+    }
+
+    if (!regexNome.test(nome)) {
+      Alert.alert("Erro", "O nome deve conter apenas letras e espaços");
+      return;
+    }
+
+    if (!regexMatricula.test(matricula)) {
+      Alert.alert("Erro", "A matrícula deve conter apenas números");
       return;
     }
 
@@ -76,7 +91,7 @@ function PrincipalAdm() {
 
     setNome("");
     setMatricula("");
-    setTurma(turmasDisponiveis[0]);
+    setTurma(turmasDisponiveis[0]?.nome || "");
   };
 
   const excluirAluno = async (matricula) => {
@@ -100,6 +115,7 @@ function PrincipalAdm() {
         placeholder="Matrícula"
         value={matricula}
         onChangeText={setMatricula}
+        keyboardType="numeric"
       />
 
       <View style={styles.pickerContainer}>
@@ -107,9 +123,11 @@ function PrincipalAdm() {
           selectedValue={turma}
           onValueChange={(itemValue) => setTurma(itemValue)}
           style={styles.picker}
+          itemStyle={styles.pickerItem}
+          dropdownIconColor="#2979ff"
         >
           {turmasDisponiveis.map((t) => (
-            <Picker.Item key={t} label={t} value={t} />
+            <Picker.Item key={t.nome} label={`${t.nome} (${t.inicio} às ${t.fim})`} value={t.nome} />
           ))}
         </Picker>
       </View>
@@ -149,20 +167,7 @@ function PrincipalAdm() {
   );
 }
 
-export default function TelaAdm() {
-  return (
-    <Drawer.Navigator
-      initialRouteName="Administração"
-      screenOptions={{
-        headerRight: () => <LogoutButton />, // botão sair global
-      }}
-    >
-      <Drawer.Screen name="Administração" component={PrincipalAdm} />
-      <Drawer.Screen name="Status dos Tickets de Hoje" component={StatusTicketsHoje} />
-      <Drawer.Screen name="Histórico de Tickets" component={HistoricoTickets} />
-    </Drawer.Navigator>
-  );
-}
+export default PrincipalAdm;
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
@@ -209,14 +214,22 @@ const styles = StyleSheet.create({
   smallButtonText: { color: "#fff", fontSize: 13, fontWeight: "bold" },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#2979ff",
     borderRadius: 8,
     marginBottom: 10,
     backgroundColor: "#fff",
     overflow: "hidden",
+    width: "100%",
+    justifyContent: "center",
   },
   picker: {
     width: "100%",
-    height: 50,
+    height: 48,
+    color: "#333",
+    backgroundColor: "#fff",
+  },
+  pickerItem: {
+    fontSize: 16,
+    height: 48,
   },
 });

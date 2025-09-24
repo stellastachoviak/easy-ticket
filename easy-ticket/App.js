@@ -4,11 +4,12 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { TouchableOpacity, Text, Alert } from 'react-native';
 
 import Login from './screens/Login';
-import TelaAdm from './screens/TelaAdm';
+import PrincipalAdm from './screens/TelaAdm'; // 👈 agora importa só a tela
 import AppTabs from './screens/AppTabs';
 import HistoricoTickets from './screens/HistoricoTickets';
 import StatusTicketsHoje from './screens/StatusTicketsHoje';
 import EditarAluno from './screens/EditarAluno';
+import GerenciarTurmas from './screens/GerenciarTurmas';
 
 import { AuthProvider, useAuth } from './AuthContext';
 import { TimeProvider } from './TimeContext';
@@ -16,7 +17,6 @@ import { TimeProvider } from './TimeContext';
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-// Botão de logout que funciona em todas as telas
 function LogoutButton({ navigation }) {
   const { logout } = useAuth();
 
@@ -44,7 +44,6 @@ function LogoutButton({ navigation }) {
   );
 }
 
-// Drawer exclusivo para admin
 function DrawerAdmin() {
   return (
     <Drawer.Navigator
@@ -53,7 +52,7 @@ function DrawerAdmin() {
         headerRight: () => <LogoutButton navigation={navigation} />,
       })}
     >
-      <Drawer.Screen name="AdminHome" component={TelaAdm} options={{ title: 'Administração' }} />
+      <Drawer.Screen name="AdminHome" component={PrincipalAdm} options={{ title: 'Administração' }} />
       <Drawer.Screen
         name="StatusTicketsHoje"
         component={StatusTicketsHoje}
@@ -63,6 +62,11 @@ function DrawerAdmin() {
         name="HistoricoTickets"
         component={HistoricoTickets}
         options={{ title: "Histórico de Tickets" }}
+      />
+      <Drawer.Screen
+        name="GerenciarTurmas"
+        component={GerenciarTurmas}
+        options={{ title: "Gerenciar Turmas" }}
       />
     </Drawer.Navigator>
   );
@@ -75,11 +79,18 @@ function AppNavigator() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!user ? (
+      {!user && (
         <Stack.Screen name="Login" component={Login} />
-      ) : user.type === 'admin' ? (
-        <Stack.Screen name="DrawerAdmin" component={DrawerAdmin} />
-      ) : (
+      )}
+
+      {user?.type === 'admin' && (
+        <>
+          <Stack.Screen name="DrawerAdmin" component={DrawerAdmin} />
+          <Stack.Screen name="EditarAluno" component={EditarAluno} />
+        </>
+      )}
+
+      {user?.type === 'aluno' && (
         <>
           <Stack.Screen name="AppTabs" component={AppTabs} />
           <Stack.Screen name="EditarAluno" component={EditarAluno} />
@@ -88,6 +99,8 @@ function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
+
 
 export default function App() {
   return (
