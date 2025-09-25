@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TimeContext = createContext();
 
@@ -8,36 +7,25 @@ export function TimeProvider({ children }) {
   const [tempoRestante, setTempoRestante] = useState(0);
   const [mensagem, setMensagem] = useState("");
   const [turmaAtual, setTurmaAtual] = useState(null);
-  const [turmas, setTurmas] = useState([]);
 
-  useEffect(() => {
-    const carregarTurmas = async () => {
-      const json = await AsyncStorage.getItem("turmas");
-      if (json) setTurmas(JSON.parse(json));
-    };
-    carregarTurmas();
-  }, []);
+  const horarios = {
+    "Desi-V1": { inicio: "15:00", fim: "15:15" },
+    "Desi-V2": { inicio: "15:15", fim: "15:30" },
+    "Desi-V3": { inicio: "15:30", fim: "15:45" },
+  };
 
   useEffect(() => {
     function atualizarTempo() {
       if (!turmaAtual) {
         setMensagem("Nenhuma turma selecionada.");
-        setIntervaloAtivo(false);
-        setTempoRestante(0);
-        return;
-      }
-
-      const turmaObj = turmas.find((t) => t.nome === turmaAtual);
-      if (!turmaObj) {
-        setMensagem("Turma não encontrada.");
-        setIntervaloAtivo(false);
-        setTempoRestante(0);
         return;
       }
 
       const agora = new Date();
-      const [hInicio, mInicio] = turmaObj.inicio.split(":").map(Number);
-      const [hFim, mFim] = turmaObj.fim.split(":").map(Number);
+      const { inicio, fim } = horarios[turmaAtual];
+
+      const [hInicio, mInicio] = inicio.split(":").map(Number);
+      const [hFim, mFim] = fim.split(":").map(Number);
 
       const inicioIntervalo = new Date(agora);
       inicioIntervalo.setHours(hInicio, mInicio, 0, 0);
@@ -63,11 +51,11 @@ export function TimeProvider({ children }) {
     atualizarTempo();
     const timer = setInterval(atualizarTempo, 1000);
     return () => clearInterval(timer);
-  }, [turmaAtual, turmas]);
+  }, [turmaAtual]);
 
   return (
     <TimeContext.Provider
-      value={{ intervaloAtivo, tempoRestante, mensagem, turmaAtual, setTurmaAtual, turmas }}
+      value={{ intervaloAtivo, tempoRestante, mensagem, turmaAtual, setTurmaAtual }}
     >
       {children}
     </TimeContext.Provider>

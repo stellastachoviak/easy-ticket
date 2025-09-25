@@ -1,43 +1,64 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useAuth } from "../AuthContext"; // Importa o AuthContext
+import React, { useState, useEffect } from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+import { View, ActivityIndicator } from "react-native";
+import * as Font from "expo-font";
 
-export default function HomeAluno() {
-  const { user: aluno } = useAuth(); // Pega o usuário logado
+import TempoIntervalo from "./TempoIntervalo";
+import ReceberTicketScreen from "./Ticket";
+import UsarTicket from "./UsarTicket";
+
+const Tab = createBottomTabNavigator();
+
+export default function HomeAluno({ route }) {
+  const aluno = route.params.aluno; 
+
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync(Ionicons.font);
+      setFontsLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, {aluno?.nome || "Aluno"}!</Text>
-      <Text style={styles.subtitle}>Sua matrícula: {aluno?.matricula || "N/A"}</Text>
-      <Text style={styles.subtitle}>Sua turma: {aluno?.turma || "N/A"}</Text>
-      <Text style={styles.info}>Use as abas abaixo para navegar.</Text>
-    </View>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: true,
+        headerTitle: "Início",
+        tabBarActiveTintColor: "#007bff",
+        tabBarInactiveTintColor: "gray",
+        tabBarStyle: { backgroundColor: "#fff", height: 90 },
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+          if (route.name === "Intervalo") iconName = "time-outline";
+          else if (route.name === "Ticket") iconName = "ticket-outline";
+          else if (route.name === "UsarTicket") iconName = "checkmark-done-outline";
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Intervalo" component={TempoIntervalo} />
+      <Tab.Screen
+        name="Ticket"
+        component={ReceberTicketScreen}
+        initialParams={{ usuario: aluno }}
+      />
+      <Tab.Screen
+        name="UsarTicket"
+        component={UsarTicket}
+        initialParams={{ usuario: aluno }}
+      />
+    </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f2f5",
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
-  },
-  subtitle: {
-    fontSize: 18,
-    color: "#555",
-    marginBottom: 5,
-  },
-  info: {
-    fontSize: 16,
-    color: "#777",
-    marginTop: 20,
-    textAlign: "center",
-  },
-});

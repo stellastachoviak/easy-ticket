@@ -11,16 +11,14 @@ import styles from '../styles/LoginStyles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import usuarios from "../data/usuarios.json";
 import { useTime } from "../TimeContext";
-import { useAuth } from "../AuthContext";
 
 export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
   const [matricula, setMatricula] = useState("");
   const [senha, setSenha] = useState("");
-  const { setTurmaAtual } = useTime();
-  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
+  const { setTurmaAtual } = useTime();
 
   const handleLogin = async () => {
     if (!matricula.trim() || (isAdm && !senha.trim())) {
@@ -29,26 +27,37 @@ export default function Login({ navigation }) {
     }
 
     if (isAdm) {
-      const encontrado = usuarios.admins.find(a => a.matricula === matricula && a.senha === senha);
+      const encontrado = usuarios.admins.find(
+        (adm) => adm.matricula === matricula && adm.senha === senha
+      );
+
       if (encontrado) {
-        await login({ ...encontrado, type: "admin" });
-        navigation.reset({ index: 0, routes: [{ name: "DrawerAdmin" }] });
-      } else Alert.alert("Erro", "Matrícula ou senha inválida!");
+        navigation.navigate("TelaAdm");
+      } else {
+        Alert.alert("Erro", "Matrícula ou senha inválida!");
+      }
     } else {
-      const json = await AsyncStorage.getItem("alunos");
-      const alunos = json ? JSON.parse(json) : [];
-      const alunoEncontrado = alunos.find(a => a.matricula === matricula);
+      try {
+        const json = await AsyncStorage.getItem("alunos");
+        const alunos = json ? JSON.parse(json) : [];
 
-      if (alunoEncontrado) {
-  await login({ ...alunoEncontrado, type: "aluno" });
-  await AsyncStorage.setItem("usuarioLogado", JSON.stringify({ ...alunoEncontrado, type: "aluno" })); // salva aluno separado
-  setTurmaAtual(alunoEncontrado.turma);
-  navigation.reset({ index: 0, routes: [{ name: "AppTabs" }] });
-}
+        const alunoEncontrado = alunos.find(
+          (aluno) => aluno.matricula === matricula
+        );
 
+        if (alunoEncontrado) {
+          setTurmaAtual(alunoEncontrado.turma);
+          navigation.navigate("HomeAluno", { aluno: alunoEncontrado });
+        } else {
+          Alert.alert("Erro", "Matrícula não encontrada!");
+        }
+      } catch (e) {
+        console.log("Erro ao verificar aluno", e);
+        Alert.alert("Erro", "Não foi possível verificar a matrícula.");
+      }
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.form}>

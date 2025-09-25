@@ -1,58 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
-import { TouchableOpacity, Text, Alert } from "react-native";
-import { useAuth } from "../AuthContext";
-import { useTime } from "../TimeContext";
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import HomeAluno from "./HomeAluno";
 import TempoIntervalo from "./TempoIntervalo";
-import ReceberTicketScreen from "./Ticket";
+import ReceberTicketScreen from "./Ticket"; 
 import UsarTicket from "./UsarTicket";
+import HomeAluno from "./HomeAluno";
 
 const Tab = createBottomTabNavigator();
 
-function LogoutButton() {
-  const { logout } = useAuth();
-  const navigation = useNavigation();
-
-  return (
-    <TouchableOpacity
-      style={{ marginRight: 10 }}
-      onPress={() => {
-        Alert.alert("Deslogar", "Deseja realmente sair?", [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Sim",
-            onPress: async () => {
-              await logout();
-              navigation.reset({ index: 0, routes: [{ name: "Login" }] });
-            },
-          },
-        ]);
-      }}
-    >
-      <Text style={{ color: "#007AFF", fontWeight: "bold" }}>Sair</Text>
-    </TouchableOpacity>
-  );
-}
-
-export default function AppTabs() {
-  const { user } = useAuth();
-  const { setTurmaAtual } = useTime();
-
-  React.useEffect(() => {
-    if (user?.turma) setTurmaAtual(user.turma); // garante que a turma esteja sempre atualizada
-  }, [user?.turma, setTurmaAtual]);
-
+export default function AppTabs({ route }) {
+  const aluno = route?.params?.aluno;
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
-        headerRight: () => <LogoutButton />,
+        headerShown: false,
         tabBarActiveTintColor: "#007bff",
         tabBarInactiveTintColor: "gray",
+        tabBarStyle: { backgroundColor: "#fff", paddingBottom: 5, height: 60 },
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === "Principal") iconName = "home-outline";
@@ -63,9 +30,9 @@ export default function AppTabs() {
         },
       })}
     >
-      <Tab.Screen name="Principal" component={HomeAluno} />
+      <Tab.Screen name="Principal" component={HomeAluno} initialParams={{ aluno }} />
       <Tab.Screen name="Intervalo" component={TempoIntervalo} />
-      <Tab.Screen name="Ticket" component={ReceberTicketScreen} />
+      <Tab.Screen name="Ticket" component={ReceberTicketScreen} initialParams={{ aluno }} />
       <Tab.Screen name="UsarTicket" component={UsarTicket} />
     </Tab.Navigator>
   );
