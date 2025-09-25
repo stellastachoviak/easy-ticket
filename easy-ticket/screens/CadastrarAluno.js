@@ -46,7 +46,6 @@ function PrincipalAdm() {
       if (json) {
         const lista = JSON.parse(json);
         setTurmasDisponiveis(lista);
-        // Só define turma se não houver uma já selecionada
         if (lista.length > 0 && !lista.some(t => t.nome === turma)) {
           setTurma(lista[0].nome);
         }
@@ -60,7 +59,7 @@ function PrincipalAdm() {
   };
 
   const salvarAluno = async () => {
-    // validações
+
     const regexNome = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/; // letras + acentos
     const regexMatricula = /^[0-9]+$/; // apenas números
 
@@ -102,7 +101,6 @@ function PrincipalAdm() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Administração</Text>
 
       <TextInput
         style={styles.input}

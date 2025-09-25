@@ -3,7 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity, Text, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../AuthContext"; // já importado
+import { useAuth } from "../AuthContext"; 
+import { useTime } from "../TimeContext";
 
 import TempoIntervalo from "./TempoIntervalo";
 import ReceberTicketScreen from "./Ticket";
@@ -41,9 +42,15 @@ function LogoutButton() {
 }
 
 export default function AppTabs({ route }) {
-  // Use o contexto de autenticação para obter o aluno, caso não venha via route
   const { user } = useAuth();
-  const aluno = route?.params?.aluno || user; // Prioriza o aluno da rota, senão pega do contexto
+  const aluno = route?.params?.aluno || user;
+  const { setTurmaAtual } = useTime();
+
+  React.useEffect(() => {
+    if (aluno?.turma) {
+      setTurmaAtual(aluno.turma);
+    }
+  }, [aluno?.turma, setTurmaAtual]);
 
   return (
     <Tab.Navigator

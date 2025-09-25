@@ -4,7 +4,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { TouchableOpacity, Text, Alert } from 'react-native';
 
 import Login from './screens/Login';
-import PrincipalAdm from './screens/TelaAdm'; // 👈 agora importa só a tela
+import PrincipalAdm from './screens/CadastrarAluno'; // 👈 agora importa só a tela
 import AppTabs from './screens/AppTabs';
 import HistoricoTickets from './screens/HistoricoTickets';
 import StatusTicketsHoje from './screens/StatusTicketsHoje';
@@ -52,7 +52,7 @@ function DrawerAdmin() {
         headerRight: () => <LogoutButton navigation={navigation} />,
       })}
     >
-      <Drawer.Screen name="AdminHome" component={PrincipalAdm} options={{ title: 'Administração' }} />
+      <Drawer.Screen name="AdminHome" component={PrincipalAdm} options={{ title: 'Cadastrar aluno' }} />
       <Drawer.Screen
         name="StatusTicketsHoje"
         component={StatusTicketsHoje}

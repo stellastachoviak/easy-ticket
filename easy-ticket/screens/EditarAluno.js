@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 
 export default function EditarAluno({ route }) {
-  const { aluno } = route.params; // Aluno que veio da tela PrincipalAdm
+  const { aluno } = route.params; 
   const [nome, setNome] = useState(aluno.nome);
   const [matricula, setMatricula] = useState(aluno.matricula);
   const [turma, setTurma] = useState(aluno.turma);
@@ -56,7 +56,6 @@ export default function EditarAluno({ route }) {
       return;
     }
 
-    // Verificar se a matrícula já existe em outro aluno
     const matriculaExistente = alunos.some(
       (a) => a.matricula === matricula && a.matricula !== aluno.matricula
     );

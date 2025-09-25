@@ -42,18 +42,15 @@ export default function GerenciarTurmas() {
       return;
     }
     if (editando !== null) {
-      // Verifica duplicidade ao editar (exceto a turma atual)
       if (turmas.some((t, idx) => t.nome === nome && idx !== editando)) {
         Alert.alert("Erro", "Já existe uma turma com esse nome");
         return;
       }
-      // Editar turma existente
       const novaLista = turmas.map((t, idx) =>
         idx === editando ? { nome, inicio, fim } : t
       );
       await salvarTurmas(novaLista);
     } else {
-      // Nova turma
       if (turmas.some((t) => t.nome === nome)) {
         Alert.alert("Erro", "Já existe uma turma com esse nome");
         return;
@@ -78,7 +75,6 @@ export default function GerenciarTurmas() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Gerenciar Turmas</Text>
       <TextInput
         style={styles.input}
         placeholder="Nome da turma"
@@ -90,7 +86,6 @@ export default function GerenciarTurmas() {
         placeholder="Início (HH:MM)"
         value={inicio}
         onChangeText={setInicio}
-        keyboardType="numeric"
         maxLength={5}
       />
       <TextInput
@@ -98,7 +93,6 @@ export default function GerenciarTurmas() {
         placeholder="Fim (HH:MM)"
         value={fim}
         onChangeText={setFim}
-        keyboardType="numeric"
         maxLength={5}
       />
       <TouchableOpacity style={styles.button} onPress={adicionarOuEditarTurma}>

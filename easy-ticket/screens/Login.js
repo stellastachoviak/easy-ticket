@@ -19,7 +19,7 @@ export default function Login({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const { setTurmaAtual } = useTime();
-  const { login } = useAuth(); // Para salvar o usuário logado
+  const { login } = useAuth(); 
 
   const handleLogin = async () => {
     if (!matricula.trim() || (isAdm && !senha.trim())) {
@@ -33,10 +33,9 @@ export default function Login({ navigation }) {
       );
 
       if (encontrado) {
-        // Salva usuário logado
+  
         await login({ ...encontrado, type: "admin" });
 
-        // Navega para DrawerAdmin usando o Stack que contém o Login
         navigation.reset({
   index: 0,
   routes: [{ name: "DrawerAdmin" }],
@@ -57,7 +56,6 @@ export default function Login({ navigation }) {
         if (alunoEncontrado) {
           setTurmaAtual(alunoEncontrado.turma);
 
-          // Salva usuário logado
           await login({ ...alunoEncontrado, type: "aluno" });
 
           navigation.reset({
@@ -77,7 +75,7 @@ export default function Login({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        {/* Switch ADM/Aluno */}
+
         <View style={styles.switchRow}>
           <TouchableOpacity
             style={[styles.switchButton, isAdm && styles.activeSwitch]}
