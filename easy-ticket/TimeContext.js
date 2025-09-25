@@ -26,6 +26,7 @@ export function TimeProvider({ children }) {
         setTempoRestante(0);
         return;
       }
+
       const turmaObj = turmas.find((t) => t.nome === turmaAtual);
       if (!turmaObj) {
         setMensagem("Turma não encontrada.");
@@ -33,11 +34,10 @@ export function TimeProvider({ children }) {
         setTempoRestante(0);
         return;
       }
-      const agora = new Date();
-      const { inicio, fim } = turmaObj;
 
-      const [hInicio, mInicio] = inicio.split(":").map(Number);
-      const [hFim, mFim] = fim.split(":").map(Number);
+      const agora = new Date();
+      const [hInicio, mInicio] = turmaObj.inicio.split(":").map(Number);
+      const [hFim, mFim] = turmaObj.fim.split(":").map(Number);
 
       const inicioIntervalo = new Date(agora);
       inicioIntervalo.setHours(hInicio, mInicio, 0, 0);

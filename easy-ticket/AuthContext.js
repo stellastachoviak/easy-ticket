@@ -1,21 +1,19 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Pode ser aluno ou admin
+  const [user, setUser] = useState(null); // aluno ou admin
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedUser) setUser(JSON.parse(storedUser));
       } catch (e) {
-        console.error('Failed to load user from AsyncStorage', e);
+        console.error("Erro ao carregar usuário:", e);
       } finally {
         setIsLoading(false);
       }
@@ -24,14 +22,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (userData) => {
-    // Certifique-se de que userData contém nome, matricula, turma, etc.
     setUser(userData);
-    await AsyncStorage.setItem('user', JSON.stringify(userData));
+    await AsyncStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = async () => {
     setUser(null);
-    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem("user");
   };
 
   return (

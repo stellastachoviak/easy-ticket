@@ -6,10 +6,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTime } from "../TimeContext";
 
 export default function ReceberTicketScreen({ route }) {
-  const alunoParam = route?.params?.usuario;
+  const alunoParam = route?.params?.aluno;
   const [aluno, setAluno] = useState(alunoParam || null);
 
-  const { intervaloAtivo, mensagem, turmaAtual, setTurmaAtual } = useTime();
+  const { intervaloAtivo, mensagem, turmaAtual, setTurmaAtual, loadingTurmas } = useTime();
   const [location, setLocation] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
   const [ticketRecebidoHoje, setTicketRecebidoHoje] = useState(false);
@@ -20,99 +20,62 @@ export default function ReceberTicketScreen({ route }) {
   const ESCOLA_COORDS = { latitude: -27.6183, longitude: -48.6628 };
   const RAIO_ESCOLA = 200; // metros
 
-  // Solicita permissão de localização ao abrir a tela
+  // Solicita permissão de localização
   useEffect(() => {
     (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        setLocationPermission(status);
-        if (status !== "granted") {
-          setLocationError("Permissão de localização negada. Ative a localização para receber o ticket.");
-        } else {
-          setLocationError("");
-        }
-        console.log("Permissão de localização:", status);
-      } catch (e) {
-        console.error("Erro ao solicitar permissão de localização:", e);
-        setLocationError("Erro ao solicitar permissão de localização.");
-      }
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      setLocationPermission(status);
+      if (status !== "granted") setLocationError("Permissão negada. Ative a localização.");
     })();
   }, []);
 
-  // Carrega dados do aluno
   useEffect(() => {
-    if (!aluno) {
-      (async () => {
-        try {
-          const raw = await AsyncStorage.getItem("usuarioLogado");
-          if (raw) {
-            const alunoObj = JSON.parse(raw);
-            setAluno(alunoObj);
-            if (alunoObj?.turma) setTurmaAtual(alunoObj.turma);
-          }
-        } catch (e) {
-          console.log("Erro ao ler usuarioLogado:", e);
-        }
-      })();
-    } else {
-      if (aluno?.turma) setTurmaAtual(aluno.turma);
-    }
-  }, [aluno]);
-
-  // Obtem localização contínua usando watchPositionAsync
-  useEffect(() => {
-    let subscriber;
-
-    const startWatchingLocation = async () => {
-      if (locationPermission !== "granted") return;
-
-      try {
-        subscriber = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.High,
-            distanceInterval: 1, // atualiza a cada metro
-            timeInterval: 5000,  // ou a cada 5s
-          },
-          (loc) => {
-            setLocation(loc);
-
-            if (loc?.coords?.latitude && loc?.coords?.longitude) {
-              const distancia = getDistance(
-                { latitude: loc.coords.latitude, longitude: loc.coords.longitude },
-                ESCOLA_COORDS
-              );
-              setDistanciaEscola(distancia);
-              setDentroEscola(distancia <= RAIO_ESCOLA);
-              setLocationError("");
-              console.log(
-                `Localização atual: (${loc.coords.latitude}, ${loc.coords.longitude}), Distância até escola: ${distancia}m`
-              );
-            } else {
-              setLocationError("Não foi possível obter as coordenadas do dispositivo.");
-              setDentroEscola(false);
-              setDistanciaEscola(null);
-              console.log("Coords inválidas em watchPositionAsync:", loc);
-            }
-          }
-        );
-      } catch (err) {
-        setLocationError("Erro ao tentar obter localização: " + err.message);
-        setDentroEscola(false);
-        setDistanciaEscola(null);
-        console.error("Erro watchPositionAsync:", err);
+  if (!aluno) {
+    (async () => {
+      const raw = await AsyncStorage.getItem("usuarioLogado");
+      if (raw) {
+        const alunoObj = JSON.parse(raw);
+        setAluno(alunoObj);
+        if (alunoObj?.turma && !turmaAtual) setTurmaAtual(alunoObj.turma);
       }
-    };
+    })();
+  } else {
+    if (aluno?.turma && !turmaAtual) setTurmaAtual(aluno.turma);
+  }
+}, [aluno, turmaAtual]);
 
+  // Obtem localização contínua
+  useEffect(() => {
+    if (locationPermission !== "granted") return;
+
+    let subscriber;
+    const startWatchingLocation = async () => {
+      subscriber = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, distanceInterval: 1, timeInterval: 5000 },
+        (loc) => {
+          setLocation(loc);
+          if (loc?.coords) {
+            const distancia = getDistance(
+              { latitude: loc.coords.latitude, longitude: loc.coords.longitude },
+              ESCOLA_COORDS
+            );
+            setDistanciaEscola(distancia);
+            setDentroEscola(distancia <= RAIO_ESCOLA);
+            setLocationError("");
+          } else {
+            setLocationError("Não foi possível obter coordenadas.");
+            setDentroEscola(false);
+          }
+        }
+      );
+    };
     startWatchingLocation();
-
-    return () => {
-      if (subscriber) subscriber.remove();
-    };
+    return () => subscriber?.remove();
   }, [locationPermission]);
 
   // Carrega status do ticket
   useEffect(() => {
-    if (!aluno?.matricula) return;
+    if (!aluno?.matricula || !turmaAtual || loadingTurmas) return;
 
     const carregarStatusTicket = async () => {
       try {
@@ -121,15 +84,13 @@ export default function ReceberTicketScreen({ route }) {
         const hoje = new Date().toISOString().split("T")[0];
         const key = String(aluno.matricula);
         const info = tickets[key];
-        const recebeuHoje = !!(info && info.data === hoje && info.recebido);
-        setTicketRecebidoHoje(recebeuHoje);
+        setTicketRecebidoHoje(!!(info && info.data === hoje && info.recebido));
       } catch (e) {
         console.log("Erro ao carregar status do ticket", e);
       }
     };
-
     carregarStatusTicket();
-  }, [intervaloAtivo, turmaAtual, mensagem, aluno]);
+  }, [intervaloAtivo, turmaAtual, mensagem, aluno, loadingTurmas]);
 
   const receberTicket = async () => {
     if (!intervaloAtivo || !dentroEscola) {
@@ -145,16 +106,15 @@ export default function ReceberTicketScreen({ route }) {
       const json = await AsyncStorage.getItem("tickets");
       const tickets = json ? JSON.parse(json) : {};
       const hoje = new Date().toISOString().split("T")[0];
-      const matriculaKey = String(aluno.matricula);
 
-      tickets[matriculaKey] = {
+      tickets[String(aluno.matricula)] = {
         recebido: true,
         data: hoje,
         usado: false,
         usuario: aluno.nome || "",
         matricula: aluno.matricula,
         turma: turmaAtual || null,
-        confirmado: false
+        confirmado: false,
       };
 
       await AsyncStorage.setItem("tickets", JSON.stringify(tickets));
@@ -166,17 +126,14 @@ export default function ReceberTicketScreen({ route }) {
     }
   };
 
+  if (loadingTurmas) return <Text>Carregando turmas...</Text>;
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Receber Ticket</Text>
-      {locationPermission !== "granted" && (
-        <Text style={styles.alert}>{locationError || "Permissão de localização não concedida."}</Text>
-      )}
-      {locationError && locationPermission === "granted" && (
-        <Text style={styles.alert}>{locationError}</Text>
-      )}
+      {locationError && <Text style={styles.alert}>{locationError}</Text>}
       <Text style={{ fontSize: 12, color: 'gray' }}>
-        {`intervaloAtivo=${intervaloAtivo ? 'true' : 'false'}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, recebeuHoje=${ticketRecebidoHoje}`}
+        {`intervaloAtivo=${intervaloAtivo}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, ticketRecebidoHoje=${ticketRecebidoHoje}`}
       </Text>
       <Text style={{ color: "#333", marginBottom: 8 }}>
         {distanciaEscola !== null

@@ -2,14 +2,14 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity, Text, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../AuthContext"; 
+import { useAuth } from "../AuthContext";
 import { useTime } from "../TimeContext";
+import { useNavigation } from '@react-navigation/native';
 
+import HomeAluno from "./HomeAluno";
 import TempoIntervalo from "./TempoIntervalo";
 import ReceberTicketScreen from "./Ticket";
 import UsarTicket from "./UsarTicket";
-import HomeAluno from "./HomeAluno";
 
 const Tab = createBottomTabNavigator();
 
@@ -27,10 +27,7 @@ function LogoutButton() {
             text: "Sim",
             onPress: async () => {
               await logout();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-              });
+              navigation.reset({ index: 0, routes: [{ name: "Login" }] });
             },
           },
         ]);
@@ -41,25 +38,21 @@ function LogoutButton() {
   );
 }
 
-export default function AppTabs({ route }) {
+export default function AppTabs() {
   const { user } = useAuth();
-  const aluno = route?.params?.aluno || user;
   const { setTurmaAtual } = useTime();
 
   React.useEffect(() => {
-    if (aluno?.turma) {
-      setTurmaAtual(aluno.turma);
-    }
-  }, [aluno?.turma, setTurmaAtual]);
+    if (user?.turma) setTurmaAtual(user.turma); // garante que a turma esteja sempre atualizada
+  }, [user?.turma, setTurmaAtual]);
 
   return (
     <Tab.Navigator
-      screenOptions={({ route, navigation }) => ({
+      screenOptions={({ route }) => ({
         headerShown: true,
         headerRight: () => <LogoutButton />,
         tabBarActiveTintColor: "#007bff",
         tabBarInactiveTintColor: "gray",
-        tabBarStyle: { backgroundColor: "#fff", paddingBottom: 5, height: 100 },
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === "Principal") iconName = "home-outline";
@@ -70,10 +63,10 @@ export default function AppTabs({ route }) {
         },
       })}
     >
-      <Tab.Screen name="Principal" component={HomeAluno} initialParams={{ aluno }} />
+      <Tab.Screen name="Principal" component={HomeAluno} />
       <Tab.Screen name="Intervalo" component={TempoIntervalo} />
-      <Tab.Screen name="Ticket" component={ReceberTicketScreen} initialParams={{ aluno }} />
-      <Tab.Screen name="UsarTicket" component={UsarTicket} initialParams={{ aluno }} />
+      <Tab.Screen name="Ticket" component={ReceberTicketScreen} />
+      <Tab.Screen name="UsarTicket" component={UsarTicket} />
     </Tab.Navigator>
   );
 }
