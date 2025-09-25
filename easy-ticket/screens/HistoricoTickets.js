@@ -15,7 +15,6 @@ export default function HistoricoTickets() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Histórico de Tickets Usados</Text>
       <FlatList
         data={logs}
         keyExtractor={(_, idx) => idx.toString()}

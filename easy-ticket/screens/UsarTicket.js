@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
+import { useAuth } from "../AuthContext"; // Importa AuthContext
 
-export default function UsarTicket({ navigation, route }) {
+export default function UsarTicket() {
+  const { user: usuario } = useAuth(); // Pega o aluno logado
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [ticketValido, setTicketValido] = useState(false);
   const [ticketAtual, setTicketAtual] = useState(null);
-
-  const usuario = route.params?.usuario;
 
   const isFocused = useIsFocused();
 
@@ -30,8 +30,6 @@ export default function UsarTicket({ navigation, route }) {
         const hoje = new Date().toISOString().split("T")[0];
         const matricula = String(usuario.matricula);
         const ticket = tickets[matricula];
-
-        console.log("Ticket encontrado para matrícula", matricula, ":", ticket);
 
         if (ticket && ticket.data === hoje) {
           setTicketValido(ticket.recebido && !ticket.usado);

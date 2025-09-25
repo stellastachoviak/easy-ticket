@@ -1,51 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons"; // Biblioteca de ícones
 
 export default function StatusTicketsHoje() {
   const [alunos, setAlunos] = useState([]);
-  const [statusTickets, setStatusTickets] = useState({});
+  const [tickets, setTickets] = useState({});
 
-  useEffect(() => {
-    async function carregarDados() {
-      // Carrega alunos
-      const alunosRaw = await AsyncStorage.getItem("alunos");
-      const listaAlunos = alunosRaw ? JSON.parse(alunosRaw) : [];
-      setAlunos(listaAlunos);
+  useFocusEffect(
+    React.useCallback(() => {
+      const carregarDados = async () => {
+        try {
+          // Carrega alunos
+          const alunosJson = await AsyncStorage.getItem("alunos");
+          setAlunos(alunosJson ? JSON.parse(alunosJson) : []);
 
-      // Carrega status dos tickets
-      const ticketsRaw = await AsyncStorage.getItem("tickets");
-      const tickets = ticketsRaw ? JSON.parse(ticketsRaw) : {};
-      const hoje = new Date().toISOString().split("T")[0];
+          // Carrega tickets
+          const ticketsJson = await AsyncStorage.getItem("tickets");
+          setTickets(ticketsJson ? JSON.parse(ticketsJson) : {});
+        } catch (e) {
+          setAlunos([]);
+          setTickets({});
+        }
+      };
+      carregarDados();
+    }, [])
+  );
 
-      // Monta status por matrícula
-      const status = {};
-      listaAlunos.forEach(aluno => {
-        const info = tickets[aluno.matricula];
-        status[aluno.matricula] = info && info.data === hoje && info.recebido;
-      });
-      setStatusTickets(status);
+  // Função para verificar o status do ticket
+  const getStatusIcon = (aluno) => {
+    const hoje = new Date().toISOString().split("T")[0];
+    const ticket = tickets[String(aluno.matricula)];
+
+    if (!ticket || ticket.data !== hoje) {
+      // Não recebeu ticket hoje
+      return <Ionicons name="ellipse" size={20} color="gray" />;
     }
-    carregarDados();
-  }, []);
+    if (ticket.usado) {
+      // Ticket já usado
+      return <Ionicons name="ellipse" size={20} color="green" />;
+    }
+    if (ticket.recebido) {
+      // Ticket recebido mas não usado
+      return <Ionicons name="ellipse" size={20} color="blue" />;
+    }
+    return <Ionicons name="ellipse" size={20} color="gray" />;
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Status dos Tickets de Hoje</Text>
       <FlatList
         data={alunos}
-        keyExtractor={(item, idx) => idx.toString()}
+        keyExtractor={(item) => item.matricula}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.info}>
+            <Text style={styles.itemText}>
               {item.nome} - {item.matricula} - {item.turma}
             </Text>
-            <Text style={[styles.status, statusTickets[item.matricula] ? styles.pego : styles.naoPego]}>
-              {statusTickets[item.matricula] ? "Pegou hoje" : "Não pegou"}
-            </Text>
+            {getStatusIcon(item)}
           </View>
         )}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20 }}>Nenhum aluno cadastrado.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>Nenhum aluno cadastrado.</Text>
+        }
       />
     </View>
   );
@@ -55,18 +74,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
   item: {
-    flexDirection: "row",
+    flexDirection: "row", // Nome + Ícone lado a lado
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
     backgroundColor: "#fff",
-    borderRadius: 8,
+    borderRadius: 6,
     marginBottom: 8,
     borderWidth: 1,
     borderColor: "#eee",
   },
-  info: { fontSize: 15 },
-  status: { fontSize: 15, fontWeight: "bold" },
-  pego: { color: "#388e3c" },
-  naoPego: { color: "#b00020" },
+  itemText: { fontSize: 14 },
+  empty: { textAlign: "center", color: "#888", marginTop: 30 },
 });
