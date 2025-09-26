@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons"; // Biblioteca de ícones
-
+import { Ionicons } from "@expo/vector-icons";
+import styles from "../styles/StatusTicketsHojeStyles";
 export default function StatusTicketsHoje() {
   const [alunos, setAlunos] = useState([]);
   const [tickets, setTickets] = useState({});
@@ -69,21 +69,3 @@ export default function StatusTicketsHoje() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
-  item: {
-    flexDirection: "row", // Nome + Ícone lado a lado
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  itemText: { fontSize: 14 },
-  empty: { textAlign: "center", color: "#888", marginTop: 30 },
-});
