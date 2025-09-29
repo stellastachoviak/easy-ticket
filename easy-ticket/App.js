@@ -4,7 +4,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { TouchableOpacity, Text, Alert } from 'react-native';
 
 import Login from './screens/Login';
-import PrincipalAdm from './screens/CadastrarAluno'; // 👈 agora importa só a tela
+import PrincipalAdm from './screens/CadastrarAluno'; 
 import AppTabs from './screens/AppTabs';
 import HistoricoTickets from './screens/HistoricoTickets';
 import StatusTicketsHoje from './screens/StatusTicketsHoje';

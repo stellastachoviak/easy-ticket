@@ -12,11 +12,8 @@ export default function StatusTicketsHoje() {
     React.useCallback(() => {
       const carregarDados = async () => {
         try {
-          // Carrega alunos
           const alunosJson = await AsyncStorage.getItem("alunos");
           setAlunos(alunosJson ? JSON.parse(alunosJson) : []);
-
-          // Carrega tickets
           const ticketsJson = await AsyncStorage.getItem("tickets");
           setTickets(ticketsJson ? JSON.parse(ticketsJson) : {});
         } catch (e) {
@@ -27,22 +24,17 @@ export default function StatusTicketsHoje() {
       carregarDados();
     }, [])
   );
-
-  // Função para verificar o status do ticket
   const getStatusIcon = (aluno) => {
     const hoje = new Date().toISOString().split("T")[0];
     const ticket = tickets[String(aluno.matricula)];
 
     if (!ticket || ticket.data !== hoje) {
-      // Não recebeu ticket hoje
       return <Ionicons name="ellipse" size={20} color="gray" />;
     }
     if (ticket.usado) {
-      // Ticket já usado
       return <Ionicons name="ellipse" size={20} color="green" />;
     }
     if (ticket.recebido) {
-      // Ticket recebido mas não usado
       return <Ionicons name="ellipse" size={20} color="blue" />;
     }
     return <Ionicons name="ellipse" size={20} color="gray" />;

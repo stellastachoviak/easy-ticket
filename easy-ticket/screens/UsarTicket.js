@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
 import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../AuthContext"; // Importa AuthContext
 
 export default function UsarTicket() {
@@ -14,13 +14,14 @@ export default function UsarTicket() {
 
   const isFocused = useIsFocused();
 
-  // Carrega ticket sempre que a tela está focada ou o usuário muda
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     async function carregarTicket() {
       if (!usuario?.matricula) {
         setTicketValido(false);
         setTicketAtual(null);
         setTicketUsado(false);
+        setModalVisible(false);
         return;
       }
 
@@ -32,24 +33,30 @@ export default function UsarTicket() {
         const ticket = tickets[matricula];
 
         if (ticket && ticket.data === hoje) {
-          setTicketValido(ticket.recebido && !ticket.usado);
+          const valido = ticket.recebido && !ticket.usado;
+          setTicketValido(valido);
           setTicketAtual(ticket);
           setTicketUsado(!!ticket.usado);
+          setModalVisible(valido); 
         } else {
           setTicketValido(false);
           setTicketAtual(null);
           setTicketUsado(false);
+          setModalVisible(false);
         }
       } catch (e) {
         console.log("Erro ao carregar tickets:", e);
         setTicketValido(false);
         setTicketAtual(null);
         setTicketUsado(false);
+        setModalVisible(false);
       }
     }
 
-    if (isFocused) carregarTicket();
-  }, [isFocused, usuario]);
+    carregarTicket();
+  }, [usuario])
+);
+
 
   const handleConfirmarPresenca = () => {
     setModalVisible(false);

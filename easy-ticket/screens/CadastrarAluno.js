@@ -21,9 +21,13 @@ function PrincipalAdm() {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
+  useFocusEffect(
+  React.useCallback(() => {
     carregarAlunos();
-  }, []);
+    carregarTurmas();
+  }, [])
+);
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -124,6 +128,7 @@ function PrincipalAdm() {
           itemStyle={styles.pickerItem}
           dropdownIconColor="#2979ff"
         >
+          <Picker.Item label="Selecione uma turma" value="" />
           {turmasDisponiveis.map((t) => (
             <Picker.Item key={t.nome} label={`${t.nome} (${t.inicio} às ${t.fim})`} value={t.nome} />
           ))}
