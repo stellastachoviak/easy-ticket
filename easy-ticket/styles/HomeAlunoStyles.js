@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
 
 const COLORS = {
-	background: '#D8BBA5',
+	background: '#F3ECE7',
 	button: '#E18B5D',
 	input: '#B6B6A2',
 	icon: '#7A8C8C',
-	text: '#FFFFFF',
-	textSecondary: '#B6B6A2',
+	text: '#333333',
+	textSecondary: '#7A8C8C',
 };
 
 const styles = StyleSheet.create({

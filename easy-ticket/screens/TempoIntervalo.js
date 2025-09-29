@@ -1,93 +1,110 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ImageBackground } from "react-native";
 import { useTime } from "../TimeContext";
 
 export default function TempoIntervalo() {
   const { intervaloAtivo, tempoRestante, mensagem, turmaAtual } = useTime();
 
   function formatarTempo(segundos) {
-  if (segundos <= 0) return "00:00";
+    if (segundos <= 0) return "00:00";
 
-  const horas = Math.floor(segundos / 3600);
-  const minutos = Math.floor((segundos % 3600) / 60);
-  const sec = segundos % 60;
+    const horas = Math.floor(segundos / 3600);
+    const minutos = Math.floor((segundos % 3600) / 60);
+    const sec = segundos % 60;
 
-  if (horas > 0) {
-    return `${horas}h ${minutos}min`;
+    if (horas > 0) {
+      return `${horas}h ${minutos}min`;
+    }
+
+    if (minutos >= 1) {
+      return `${minutos.toString().padStart(2, "0")}:${sec
+        .toString()
+        .padStart(2, "0")}`;
+    }
+
+    return `00:${sec.toString().padStart(2, "0")}`;
   }
-
-  if (minutos >= 1) {
-    return `${minutos.toString().padStart(2, "0")}:${sec
-      .toString()
-      .padStart(2, "0")}`;
-  }
-
-  return `00:${sec.toString().padStart(2, "0")}`;
-}
-
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.card, intervaloAtivo ? styles.cardAtivo : styles.cardInativo]}>
-        <Text style={styles.title}>⏰ Intervalo - {turmaAtual || "?"}</Text>
-        <Text style={[styles.status, intervaloAtivo ? styles.ativo : styles.inativo]}>
-          {intervaloAtivo ? "ATIVO" : "INATIVO"}
-        </Text>
-        <Text style={styles.timer}>
-  {mensagem
-    ? `${mensagem}: ${formatarTempo(tempoRestante)}`
-    : formatarTempo(tempoRestante)}
-</Text>
+    <ImageBackground
+      source={require("../assets/fundo.png")}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <View
+          style={[
+            styles.card,
+            intervaloAtivo ? styles.cardAtivo : styles.cardInativo,
+          ]}
+        >
+          <Text style={styles.title}>⏰ Intervalo - {turmaAtual || "?"}</Text>
+          <Text
+            style={[
+              styles.status,
+              intervaloAtivo ? styles.ativo : styles.inativo,
+            ]}
+          >
+            {intervaloAtivo ? "ATIVO" : "INATIVO"}
+          </Text>
+          <Text style={styles.timer}>
+            {mensagem
+              ? `${mensagem}: ${formatarTempo(tempoRestante)}`
+              : formatarTempo(tempoRestante)}
+          </Text>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0b0b2a",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   card: {
-    width: "90%",
-    padding: 25,
-    borderRadius: 20,
+    borderRadius: 24,
+    padding: 32,
     alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
   },
   cardAtivo: {
-    backgroundColor: "#d1f7d6",
+    borderWidth: 2,
+    borderColor: "#4CAF50",
   },
   cardInativo: {
-    backgroundColor: "#ffe5e5",
+    borderWidth: 2,
+    borderColor: "#F44336",
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#222",
+    color: "#333333",
+    marginBottom: 12,
   },
   status: {
-    fontSize: 28,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   ativo: {
-    color: "#1a8917",
+    color: "#4CAF50",
   },
   inativo: {
-    color: "#b00020",
+    color: "#F44336",
   },
   timer: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    width:290
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#E18B5D",
+    marginTop: 8,
   },
 });

@@ -9,6 +9,7 @@ const COLORS = {
   used: "#4CAF50",
   received: "#4A90E2",
   none: "#B0B0B0",
+  none: "#B0B0B0",
 };
 
 const styles = StyleSheet.create({

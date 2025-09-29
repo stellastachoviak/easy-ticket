@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
 import { useAuth } from "../AuthContext"; // Importa AuthContext
@@ -97,56 +97,62 @@ export default function UsarTicket() {
   };
 
   return (
-    <View style={styles.container}>
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>
-              {"Somente o atendente pode receber o ticket.\nClique no X para confirmar que está na presença do atendente."}
-            </Text>
-            <TouchableOpacity style={styles.closeButton} onPress={handleConfirmarPresenca}>
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
+    <ImageBackground
+      source={require('../assets/fundo.png')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Modal visible={modalVisible} transparent={true} animationType="fade">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>
+                {"Somente o atendente pode receber o ticket.\nClique no X para confirmar que está na presença do atendente."}
+              </Text>
+              <TouchableOpacity style={styles.closeButton} onPress={handleConfirmarPresenca}>
+                <Text style={styles.closeButtonText}>X</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <Text style={styles.title}>Usar Ticket</Text>
+        <Text style={styles.title}>Usar Ticket</Text>
 
-      {ticketAtual && (
-        <View style={{ marginBottom: 20, alignItems: "center" }}>
-          <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
-          <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
-          <Text style={{ fontSize: 16, marginVertical: 2 }}>
-            Status: {ticketUsado || ticketAtual.usado ? "Usado" : ticketAtual.recebido ? "Válido" : "Inválido"}
+        {ticketAtual && (
+          <View style={{ marginBottom: 20, alignItems: "center" }}>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>
+              Status: {ticketUsado || ticketAtual.usado ? "Usado" : ticketAtual.recebido ? "Válido" : "Inválido"}
+            </Text>
+          </View>
+        )}
+
+        <Button
+          title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
+          onPress={handleUsarTicket}
+          disabled={!ticketValido || ticketUsado}
+        />
+
+        {!ticketValido && !ticketUsado && (
+          <Text style={{ color: "#F44336", marginTop: 20 }}>
+            Você não possui um ticket válido para usar.
           </Text>
-        </View>
-      )}
+        )}
 
-      <Button
-        title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
-        onPress={handleUsarTicket}
-        disabled={!ticketValido || ticketUsado}
-      />
-
-      {!ticketValido && !ticketUsado && (
-        <Text style={{ color: "red", marginTop: 20 }}>
-          Você não possui um ticket válido para usar.
-        </Text>
-      )}
-
-      {feedback && <Text style={styles.feedback}>{feedback}</Text>}
-    </View>
+        {feedback && <Text style={styles.feedback}>{feedback}</Text>}
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   title: { fontSize: 24, marginBottom: 20 },
-  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContent: { backgroundColor: "white", padding: 20, borderRadius: 10, alignItems: "center" },
+  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#E18B5D" },
+  modalContent: { backgroundColor: "#FFFFFF", padding: 20, borderRadius: 10, alignItems: "center" },
   modalText: { fontSize: 16, marginBottom: 20, textAlign: "center" },
-  closeButton: { backgroundColor: "#2196F3", padding: 10, borderRadius: 5 },
-  closeButtonText: { color: "white", fontWeight: "bold", fontSize: 18 },
-  feedback: { color: "green", marginTop: 20, fontSize: 16 },
+  closeButton: { backgroundColor: "#E18B5D", padding: 10, borderRadius: 5 },
+  closeButtonText: { color: "#FFFFFF", fontWeight: "bold", fontSize: 18 },
+  feedback: { color: "#4CAF50", marginTop: 20, fontSize: 16 },
 });

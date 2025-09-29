@@ -18,7 +18,13 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		padding: 20,
 	},
-	ticketBox: {
+	title: {
+		fontSize: 24,
+		color: COLORS.icon,
+		marginBottom: 20,
+		fontWeight: 'bold',
+	},
+	card: {
 		backgroundColor: COLORS.input,
 		borderRadius: 20,
 		padding: 16,
@@ -26,7 +32,7 @@ const styles = StyleSheet.create({
 		width: '100%',
 		alignItems: 'center',
 	},
-	ticketText: {
+	cardText: {
 		color: COLORS.icon,
 		fontSize: 16,
 	},

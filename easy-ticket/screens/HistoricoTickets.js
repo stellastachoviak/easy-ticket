@@ -26,7 +26,7 @@ export default function HistoricoTickets() {
             </Text>
           </View>
         )}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20 }}>Nenhum ticket usado ainda.</Text>}
+  ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20, color: '#7A8C8C' }}>Nenhum ticket usado ainda.</Text>}
       />
     </View>
   );

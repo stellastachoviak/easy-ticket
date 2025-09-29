@@ -35,17 +35,17 @@ export default function StatusTicketsHoje() {
 
     if (!ticket || ticket.data !== hoje) {
       // Não recebeu ticket hoje
-      return <Ionicons name="ellipse" size={20} color="gray" />;
+      return <Ionicons name="ellipse" size={20} color="#B0B0B0" />;
     }
     if (ticket.usado) {
       // Ticket já usado
-      return <Ionicons name="ellipse" size={20} color="green" />;
+      return <Ionicons name="ellipse" size={20} color="#4CAF50" />;
     }
     if (ticket.recebido) {
       // Ticket recebido mas não usado
-      return <Ionicons name="ellipse" size={20} color="blue" />;
+      return <Ionicons name="ellipse" size={20} color="#E18B5D" />;
     }
-    return <Ionicons name="ellipse" size={20} color="gray" />;
+    return <Ionicons name="ellipse" size={20} color="#B0B0B0" />;
   };
 
   return (

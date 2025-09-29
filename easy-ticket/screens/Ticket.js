@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Alert, StyleSheet } from "react-native";
+import { View, Text, Button, Alert, StyleSheet, ImageBackground } from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -129,40 +129,46 @@ export default function ReceberTicketScreen({ route }) {
   if (loadingTurmas) return <Text>Carregando turmas...</Text>;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Receber Ticket</Text>
-      {locationError && <Text style={styles.alert}>{locationError}</Text>}
-      <Text style={{ fontSize: 12, color: 'gray' }}>
-        {`intervaloAtivo=${intervaloAtivo}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, ticketRecebidoHoje=${ticketRecebidoHoje}`}
-      </Text>
-      <Text style={{ color: "#333", marginBottom: 8 }}>
-        {distanciaEscola !== null
-          ? `Distância até a escola: ${distanciaEscola} metros (raio permitido: ${RAIO_ESCOLA})`
-          : "Distância até a escola: (localização não obtida)"}
-      </Text>
-      <Button
-        title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
-        onPress={receberTicket}
-        disabled={!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
-      />
-      {!dentroEscola && locationPermission === "granted" && (
-        <Text style={styles.alert}>
-          {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
+    <ImageBackground
+      source={require('../assets/fundo.png')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Receber Ticket</Text>
+        {locationError && <Text style={styles.alert}>{locationError}</Text>}
+        <Text style={{ fontSize: 12, color: 'gray' }}>
+          {`intervaloAtivo=${intervaloAtivo}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, ticketRecebidoHoje=${ticketRecebidoHoje}`}
         </Text>
-      )}
-      {dentroEscola && !intervaloAtivo && (
-        <Text style={styles.alert}>{mensagem || "O ticket ainda não está liberado."}</Text>
-      )}
-      {ticketRecebidoHoje && (
-        <Text style={styles.sucesso}>Você já reivindicou seu ticket hoje.</Text>
-      )}
-    </View>
+        <Text style={{ color: "#2e2d2dff", marginBottom: 8 }}>
+          {distanciaEscola !== null
+            ? `Distância até a escola: ${distanciaEscola} metros (raio permitido: ${RAIO_ESCOLA})`
+            : "Distância até a escola: (localização não obtida)"}
+        </Text>
+        <Button
+          title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
+          onPress={receberTicket}
+          disabled={!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
+        />
+        {!dentroEscola && locationPermission === "granted" && (
+          <Text style={styles.alert}>
+            {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
+          </Text>
+        )}
+        {dentroEscola && !intervaloAtivo && (
+          <Text style={styles.alert}>{mensagem || "O ticket ainda não está liberado."}</Text>
+        )}
+        {ticketRecebidoHoje && (
+          <Text style={styles.sucesso}>Você já reivindicou seu ticket hoje.</Text>
+        )}
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
-  alert: { marginTop: 10, fontSize: 16, color: "red", textAlign: "center" },
-  sucesso: { fontSize: 18, fontWeight: "bold", color: "green", marginTop: 10 },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20, fontFamily: "Playfair Display" },
+  alert: { marginTop: 10, fontSize: 16, color: "red", textAlign: "center", fontFamily: "Playfair Display" },
+  sucesso: { fontSize: 18, fontWeight: "bold", color: "green", marginTop: 10, fontFamily: "Playfair Display" },
 });
