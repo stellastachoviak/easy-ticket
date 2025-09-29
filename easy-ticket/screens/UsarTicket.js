@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useCallback } from "react";
-import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../AuthContext"; // Importa AuthContext
