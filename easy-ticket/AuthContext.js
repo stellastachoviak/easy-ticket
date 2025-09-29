@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // aluno ou admin
+  const [user, setUser] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

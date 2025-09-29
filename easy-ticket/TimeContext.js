@@ -10,16 +10,36 @@ export function TimeProvider({ children }) {
   const [turmaAtual, setTurmaAtual] = useState(null);
   const [turmas, setTurmas] = useState([]);
 
+
   useEffect(() => {
     const carregarTurmas = async () => {
-      const json = await AsyncStorage.getItem("turmas");
-      if (json) setTurmas(JSON.parse(json));
+      try {
+        const json = await AsyncStorage.getItem("turmas");
+        if (json) {
+          const lista = JSON.parse(json);
+          setTurmas(lista);
+          console.log("Turmas carregadas:", lista);
+        } else {
+          console.log("Nenhuma turma encontrada no AsyncStorage.");
+          setTurmas([]);
+        }
+      } catch (e) {
+        console.error("Erro ao carregar turmas:", e);
+        setTurmas([]);
+      }
     };
+
     carregarTurmas();
   }, []);
 
+
   useEffect(() => {
     function atualizarTempo() {
+      if (!turmas.length) {
+        setMensagem("Nenhuma turma carregada.");
+        return;
+      }
+
       if (!turmaAtual) {
         setMensagem("Nenhuma turma selecionada.");
         setIntervaloAtivo(false);
@@ -27,9 +47,14 @@ export function TimeProvider({ children }) {
         return;
       }
 
-      const turmaObj = turmas.find((t) => t.nome === turmaAtual);
+
+      const turmaObj = turmas.find(
+        (t) =>
+          t.nome.trim().toLowerCase() === turmaAtual.trim().toLowerCase()
+      );
+
       if (!turmaObj) {
-        setMensagem("Turma não encontrada.");
+        setMensagem(`Turma '${turmaAtual}' não encontrada.`);
         setIntervaloAtivo(false);
         setTempoRestante(0);
         return;
@@ -67,7 +92,14 @@ export function TimeProvider({ children }) {
 
   return (
     <TimeContext.Provider
-      value={{ intervaloAtivo, tempoRestante, mensagem, turmaAtual, setTurmaAtual, turmas }}
+      value={{
+        intervaloAtivo,
+        tempoRestante,
+        mensagem,
+        turmaAtual,
+        setTurmaAtual,
+        turmas,
+      }}
     >
       {children}
     </TimeContext.Provider>
