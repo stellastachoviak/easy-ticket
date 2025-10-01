@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, Button, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,6 +24,17 @@ export default function StatusTicketsHoje() {
       carregarDados();
     }, [])
   );
+
+  const handleReset = async () => {
+    try {
+      await AsyncStorage.multiRemove(["tickets", "tickets_logs"]);
+      setTickets({});
+      Alert.alert("Sucesso", "Tickets e logs foram resetados.");
+    } catch (e) {
+      Alert.alert("Erro", "Não foi possível resetar.");
+    }
+  };
+
   const getStatusIcon = (aluno) => {
     const hoje = new Date().toISOString().split("T")[0];
     const ticket = tickets[String(aluno.matricula)];
@@ -43,6 +54,7 @@ export default function StatusTicketsHoje() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Status dos Tickets de Hoje</Text>
+      <Button title="Resetar Tickets e Logs" onPress={handleReset} />
       <FlatList
         data={alunos}
         keyExtractor={(item) => item.matricula}

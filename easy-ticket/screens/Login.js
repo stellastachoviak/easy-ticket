@@ -70,7 +70,7 @@ export default function Login({ navigation }) {
           />
         </View>
         {/* Campo Senha */}
-        {isAdm && (
+        {isAdm ? (
           <View style={styles.inputRow}>
             <Ionicons name="lock-closed" size={22} style={styles.icon} />
             <TextInput
@@ -82,7 +82,7 @@ export default function Login({ navigation }) {
               placeholderTextColor="#a1a1a1ff"
             />
           </View>
-        )}
+        ) : null}
         {/* Botão Entrar */}
         <TouchableOpacity
           style={styles.button}

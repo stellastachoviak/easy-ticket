@@ -9,7 +9,7 @@ export default function ReceberTicketScreen({ route }) {
   const alunoParam = route?.params?.aluno;
   const [aluno, setAluno] = useState(alunoParam || null);
 
-  const { intervaloAtivo, mensagem, turmaAtual, setTurmaAtual, loadingTurmas } = useTime();
+  const { intervaloAtivo, mensagem, turmaAtual, setTurmaAtual, loadingTurmas, ticketLiberado, tempoRestante } = useTime();
   const [location, setLocation] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
   const [ticketRecebidoHoje, setTicketRecebidoHoje] = useState(false);
@@ -90,10 +90,10 @@ export default function ReceberTicketScreen({ route }) {
       }
     };
     carregarStatusTicket();
-  }, [intervaloAtivo, turmaAtual, mensagem, aluno, loadingTurmas]);
+  }, [ticketLiberado, turmaAtual, mensagem, aluno, loadingTurmas]);
 
   const receberTicket = async () => {
-    if (!intervaloAtivo || !dentroEscola) {
+    if (!ticketLiberado || !dentroEscola) {
       Alert.alert("Atenção", "Você não pode reivindicar o ticket agora.");
       return;
     }
@@ -126,8 +126,13 @@ export default function ReceberTicketScreen({ route }) {
     }
   };
 
-  if (loadingTurmas) return <Text>Carregando turmas...</Text>;
-
+  if (loadingTurmas)
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Carregando turmas...</Text>
+      </View>
+    );
+  
   return (
     <ImageBackground
       source={require('../assets/ticket.jpg')}
@@ -136,31 +141,27 @@ export default function ReceberTicketScreen({ route }) {
     >
       <View style={styles.container}>
         <Text style={styles.title}>Receber Ticket</Text>
-        {locationError && <Text style={styles.alert}>{locationError}</Text>}
-        <Text style={{ fontSize: 12, color: 'gray' }}>
-          {`intervaloAtivo=${intervaloAtivo}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, ticketRecebidoHoje=${ticketRecebidoHoje}`}
-        </Text>
-        <Text style={{ color: "#2e2d2dff", marginBottom: 8 }}>
-          {distanciaEscola !== null
-            ? `Distância até a escola: ${distanciaEscola} metros (raio permitido: ${RAIO_ESCOLA})`
-            : "Distância até a escola: (localização não obtida)"}
-        </Text>
+        {locationError ? <Text style={styles.alert}>{locationError}</Text> : null}
+
         <Button
           title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
           onPress={receberTicket}
-          disabled={!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
+          disabled={!ticketLiberado || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
         />
-        {!dentroEscola && locationPermission === "granted" && (
+        {!dentroEscola && locationPermission === "granted" ? (
           <Text style={styles.alert}>
             {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
           </Text>
-        )}
-        {dentroEscola && !intervaloAtivo && (
-          <Text style={styles.alert}>{mensagem || "O ticket ainda não está liberado."}</Text>
-        )}
-        {ticketRecebidoHoje && (
+        ) : null}
+        {dentroEscola && ticketLiberado && !intervaloAtivo ? (
+          <Text style={styles.alert}>Janela antecipada: você já pode receber (faltam {Math.max(0, Math.floor(tempoRestante / 60))} min para o intervalo).</Text>
+        ) : null}
+        {dentroEscola && !ticketLiberado ? (
+          <Text style={styles.alert}>{mensagem || "Aguarde a liberação."}</Text>
+        ) : null}
+        {ticketRecebidoHoje ? (
           <Text style={styles.sucesso}>Você já reivindicou seu ticket hoje.</Text>
-        )}
+        ) : null}
       </View>
     </ImageBackground>
   );

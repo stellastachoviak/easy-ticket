@@ -1,62 +1,59 @@
-import React, { useState, useEffect,useCallback } from "react";
-import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground} from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useIsFocused, useFocusEffect } from "@react-navigation/native";
-import { useAuth } from "../AuthContext"; // Importa AuthContext
+import { useFocusEffect } from "@react-navigation/native";
+import { useAuth } from "../AuthContext";
 
 export default function UsarTicket() {
-  const { user: usuario } = useAuth(); // Pega o aluno logado
+  const { user: usuario } = useAuth();
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [ticketValido, setTicketValido] = useState(false);
   const [ticketAtual, setTicketAtual] = useState(null);
 
-  const isFocused = useIsFocused();
-
   useFocusEffect(
-  useCallback(() => {
-    async function carregarTicket() {
-      if (!usuario?.matricula) {
-        setTicketValido(false);
-        setTicketAtual(null);
-        setTicketUsado(false);
-        setModalVisible(false);
-        return;
-      }
+    useCallback(() => {
+      async function carregarTicket() {
+        if (!usuario?.matricula) {
+          setTicketValido(false);
+          setTicketAtual(null);
+          setTicketUsado(false);
+          setModalVisible(false);
+          return;
+        }
 
-      try {
-        const json = await AsyncStorage.getItem("tickets");
-        const tickets = json ? JSON.parse(json) : {};
-        const hoje = new Date().toISOString().split("T")[0];
-        const matricula = String(usuario.matricula);
-        const ticket = tickets[matricula];
+        try {
+          const json = await AsyncStorage.getItem("tickets");
+          const tickets = json ? JSON.parse(json) : {};
+          const hoje = new Date().toISOString().split("T")[0];
+          const matricula = String(usuario.matricula);
+          const ticket = tickets[matricula];
 
-        if (ticket && ticket.data === hoje) {
-          const valido = ticket.recebido && !ticket.usado;
-          setTicketValido(valido);
-          setTicketAtual(ticket);
-          setTicketUsado(!!ticket.usado);
-          setModalVisible(valido); 
-        } else {
+          if (ticket && ticket.data === hoje) {
+            const valido = ticket.recebido && !ticket.usado;
+            setTicketValido(valido);
+            setTicketAtual(ticket);
+            setTicketUsado(!!ticket.usado);
+            setModalVisible(valido); 
+          } else {
+            setTicketValido(false);
+            setTicketAtual(null);
+            setTicketUsado(false);
+            setModalVisible(false);
+          }
+        } catch (e) {
+          console.log("Erro ao carregar tickets:", e);
           setTicketValido(false);
           setTicketAtual(null);
           setTicketUsado(false);
           setModalVisible(false);
         }
-      } catch (e) {
-        console.log("Erro ao carregar tickets:", e);
-        setTicketValido(false);
-        setTicketAtual(null);
-        setTicketUsado(false);
-        setModalVisible(false);
       }
-    }
 
-    carregarTicket();
-  }, [usuario])
-);
-
+      carregarTicket();
+    }, [usuario])
+  );
 
   const handleConfirmarPresenca = () => {
     setModalVisible(false);
@@ -114,7 +111,7 @@ export default function UsarTicket() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>
-                {"Somente o atendente pode receber o ticket.\nClique no X para confirmar que está na presença do atendente."}
+                Somente o atendente pode receber o ticket.{"\n"}Clique no X para confirmar que está na presença do atendente.
               </Text>
               <TouchableOpacity style={styles.closeButton} onPress={handleConfirmarPresenca}>
                 <Text style={styles.closeButtonText}>X</Text>
@@ -127,8 +124,8 @@ export default function UsarTicket() {
 
         {ticketAtual && (
           <View style={{ marginBottom: 20, alignItems: "center" }}>
-            <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual.matricula}</Text>
-            <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual.usuario}</Text>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>Matrícula: {ticketAtual?.matricula}</Text>
+            <Text style={{ fontSize: 16, marginVertical: 2 }}>Nome: {ticketAtual?.usuario}</Text>
             <Text style={{ fontSize: 16, marginVertical: 2 }}>
               Status: {ticketUsado || ticketAtual.usado ? "Usado" : ticketAtual.recebido ? "Válido" : "Inválido"}
             </Text>
@@ -136,25 +133,25 @@ export default function UsarTicket() {
         )}
 
         <TouchableOpacity
-  style={[
-    styles.primaryButton,
-    (!ticketValido || ticketUsado) && { opacity: 5 } // desabilitado visual
-  ]}
-  onPress={handleUsarTicket}
-  disabled={!ticketValido || ticketUsado}
->
-  <Text style={styles.primaryButtonText}>
-    {ticketUsado ? "Ticket já usado" : "Usar Ticket"}
-  </Text>
-</TouchableOpacity>
+          style={[
+            styles.primaryButton,
+            (!ticketValido || ticketUsado) && { opacity: 0.5 }
+          ]}
+          onPress={handleUsarTicket}
+          disabled={!ticketValido || ticketUsado}
+        >
+          <Text style={styles.primaryButtonText}>
+            {ticketUsado ? "Ticket já usado" : "Usar Ticket"}
+          </Text>
+        </TouchableOpacity>
 
-        {!ticketValido && !ticketUsado && (
+        {!ticketValido && !ticketUsado ? (
           <Text style={{ color: "#F44336", marginTop: 20 }}>
             Você não possui um ticket válido para usar.
           </Text>
-        )}
+        ) : null}
 
-        {feedback && <Text style={styles.feedback}>{feedback}</Text>}
+        {feedback !== "" ? <Text style={styles.feedback}>{feedback}</Text> : null}
       </View>
     </ImageBackground>
   );
