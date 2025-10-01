@@ -2,13 +2,13 @@ import { StyleSheet } from 'react-native';
 
 const COLORS = {
   background: '#F3ECE7',
-  primary: '#E18B5D',
+  primary: '#D7C2A5',
   success: '#4CAF50',
   danger: '#F44336',
   card: '#FFFFFF',
   text: '#333333',
   textSecondary: '#7A8C8C',
-  border: '#D8D8D8',
+  border: '#cacacaff',
 };
 
 const styles = StyleSheet.create({

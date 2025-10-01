@@ -105,7 +105,7 @@ export default function UsarTicket() {
 
   return (
     <ImageBackground
-      source={require('../assets/fundo.png')}
+      source={require('../assets/ticket.jpg')}
       style={{ flex: 1 }}
       resizeMode="cover"
     >
@@ -135,11 +135,18 @@ export default function UsarTicket() {
           </View>
         )}
 
-        <Button
-          title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
-          onPress={handleUsarTicket}
-          disabled={!ticketValido || ticketUsado}
-        />
+        <TouchableOpacity
+  style={[
+    styles.primaryButton,
+    (!ticketValido || ticketUsado) && { opacity: 5 } // desabilitado visual
+  ]}
+  onPress={handleUsarTicket}
+  disabled={!ticketValido || ticketUsado}
+>
+  <Text style={styles.primaryButtonText}>
+    {ticketUsado ? "Ticket já usado" : "Usar Ticket"}
+  </Text>
+</TouchableOpacity>
 
         {!ticketValido && !ticketUsado && (
           <Text style={{ color: "#F44336", marginTop: 20 }}>
@@ -159,7 +166,16 @@ const styles = StyleSheet.create({
   modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#E18B5D" },
   modalContent: { backgroundColor: "#FFFFFF", padding: 20, borderRadius: 10, alignItems: "center" },
   modalText: { fontSize: 16, marginBottom: 20, textAlign: "center" },
-  closeButton: { backgroundColor: "#E18B5D", padding: 10, borderRadius: 5 },
-  closeButtonText: { color: "#FFFFFF", fontWeight: "bold", fontSize: 18 },
-  feedback: { color: "#4CAF50", marginTop: 20, fontSize: 16 },
+  primaryButton: {
+    backgroundColor: "#D2B48C",
+    paddingVertical: 17,
+    borderRadius: 30,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
 });

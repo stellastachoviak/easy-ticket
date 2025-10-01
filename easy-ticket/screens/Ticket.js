@@ -130,7 +130,7 @@ export default function ReceberTicketScreen({ route }) {
 
   return (
     <ImageBackground
-      source={require('../assets/fundo.png')}
+      source={require('../assets/ticket.jpg')}
       style={{ flex: 1 }}
       resizeMode="cover"
     >

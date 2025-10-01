@@ -66,7 +66,7 @@ export default function Login({ navigation }) {
             value={matricula}
             onChangeText={setMatricula}
             keyboardType="numeric"
-            placeholderTextColor="#fff"
+            placeholderTextColor="#a1a1a1ff"
           />
         </View>
         {/* Campo Senha */}
@@ -79,7 +79,7 @@ export default function Login({ navigation }) {
               value={senha}
               onChangeText={setSenha}
               secureTextEntry={!showPassword}
-              placeholderTextColor="#fff"
+              placeholderTextColor="#a1a1a1ff"
             />
           </View>
         )}
@@ -93,7 +93,6 @@ export default function Login({ navigation }) {
         {/* Link Cadastro */}
         <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}
           style={{ marginTop: 18 }}>
-          <Text style={styles.link}>Não tem uma conta? Cadastre-se</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
