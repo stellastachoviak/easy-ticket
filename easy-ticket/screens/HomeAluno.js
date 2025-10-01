@@ -11,7 +11,7 @@ export default function HomeAluno() {
       style={{ flex: 1 }}
       resizeMode="cover"
     >
-      <View style={styles.container}> {/* Sem opacidade extra, igual ao intervalo */}
+      <View style={styles.container}> 
         <Text style={styles.title}>Bem-vindo, {aluno?.nome || "Aluno"}!</Text>
         <Text style={styles.subtitle}>Sua matrícula: {aluno?.matricula || "N/A"}</Text>
         <Text style={styles.subtitle}>Sua turma: {aluno?.turma || "N/A"}</Text>
@@ -29,21 +29,21 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#333333",
+    color: "#000000ff",
     fontFamily: "Playfair Display",
   },
   subtitle: {
     fontSize: 18,
-    color: "#7A8C8C",
+    color: "#523711ff",
     marginBottom: 5,
     fontFamily: "Playfair Display",
   },
   info: {
     fontSize: 16,
-    color: "#86614cff",
+    color: "#a8501dff",
     marginTop: 20,
     textAlign: "center",
     fontFamily: "Playfair Display",

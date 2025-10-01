@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
 
 const COLORS = {
-  background: "#F3ECE7",
+  background: "#D7C2A5",
   card: "#FFFFFF",
   text: "#333333",
   textSecondary: "#7A8C8C",
-  border: "#D8D8D8",
+  border: "#8d6138ff",
   used: "#4CAF50",
   received: "#4A90E2",
   none: "#B0B0B0",

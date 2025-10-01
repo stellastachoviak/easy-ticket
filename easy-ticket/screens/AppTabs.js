@@ -33,7 +33,7 @@ function LogoutButton() {
         ]);
       }}
     >
-      <Text style={{ color: "#007AFF", fontWeight: "bold" }}>Sair</Text>
+      <Text style={{ color: "#d19d61e3", fontWeight: "bold" }}>Sair</Text>
     </TouchableOpacity>
   );
 }
