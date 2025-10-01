@@ -1,67 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
-import { View, ActivityIndicator } from "react-native";
-import styles from '../styles/HomeAlunoStyles';
-import * as Font from "expo-font";
+import React from "react";
+import { View, Text, StyleSheet, ImageBackground } from "react-native";
+import { useAuth } from "../AuthContext"; // Importa o AuthContext
 
-import TempoIntervalo from "./TempoIntervalo";
-import ReceberTicketScreen from "./Ticket";
-import UsarTicket from "./UsarTicket";
-
-const Tab = createBottomTabNavigator();
-
-export default function HomeAluno({ route }) {
-  const aluno = route.params.aluno; 
-
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-  useEffect(() => {
-    async function loadFonts() {
-      await Font.loadAsync(Ionicons.font);
-      setFontsLoaded(true);
-    }
-    loadFonts();
-  }, []);
-
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#E18B5D" />
-      </View>
-    );
-  }
+export default function HomeAluno() {
+  const { user: aluno } = useAuth(); // Pega o usuário logado
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: true,
-        headerTitle: "Início",
-        tabBarActiveTintColor: '#E18B5D',
-        tabBarInactiveTintColor: '#B6B6A2',
-        tabBarStyle: { backgroundColor: '#D8BBA5', height: 90, borderTopWidth: 0 },
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-          if (route.name === "Intervalo") iconName = "time-outline";
-          else if (route.name === "Ticket") iconName = "ticket-outline";
-          else if (route.name === "UsarTicket") iconName = "checkmark-done-outline";
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-      })}
+    <ImageBackground
+      source={require('../assets/ticket.jpg')}
+      style={{ flex: 1 }}
+      resizeMode="cover"
     >
-      <Tab.Screen name="Intervalo" component={TempoIntervalo} />
-      <Tab.Screen
-        name="Ticket"
-        component={ReceberTicketScreen}
-        initialParams={{ usuario: aluno }}
-      />
-      <Tab.Screen
-        name="UsarTicket"
-        component={UsarTicket}
-        initialParams={{ usuario: aluno }}
-      />
-    </Tab.Navigator>
+      <View style={styles.container}> {/* Sem opacidade extra, igual ao intervalo */}
+        <Text style={styles.title}>Bem-vindo, {aluno?.nome || "Aluno"}!</Text>
+        <Text style={styles.subtitle}>Sua matrícula: {aluno?.matricula || "N/A"}</Text>
+        <Text style={styles.subtitle}>Sua turma: {aluno?.turma || "N/A"}</Text>
+        <Text style={styles.info}>Use as abas abaixo para navegar.</Text>
+      </View>
+    </ImageBackground>
   );
 }
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333333",
+    fontFamily: "Playfair Display",
+  },
+  subtitle: {
+    fontSize: 18,
+    color: "#7A8C8C",
+    marginBottom: 5,
+    fontFamily: "Playfair Display",
+  },
+  info: {
+    fontSize: 16,
+    color: "#86614cff",
+    marginTop: 20,
+    textAlign: "center",
+    fontFamily: "Playfair Display",
+  },
+});

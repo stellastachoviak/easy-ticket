@@ -1,53 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import styles from "../styles/StatusTicketsHojeStyles";
 export default function StatusTicketsHoje() {
   const [alunos, setAlunos] = useState([]);
-  const [statusTickets, setStatusTickets] = useState({});
+  const [tickets, setTickets] = useState({});
 
-  useEffect(() => {
-    async function carregarDados() {
-      // Carrega alunos
-      const alunosRaw = await AsyncStorage.getItem("alunos");
-      const listaAlunos = alunosRaw ? JSON.parse(alunosRaw) : [];
-      setAlunos(listaAlunos);
+  useFocusEffect(
+    React.useCallback(() => {
+      const carregarDados = async () => {
+        try {
+          const alunosJson = await AsyncStorage.getItem("alunos");
+          setAlunos(alunosJson ? JSON.parse(alunosJson) : []);
+          const ticketsJson = await AsyncStorage.getItem("tickets");
+          setTickets(ticketsJson ? JSON.parse(ticketsJson) : {});
+        } catch (e) {
+          setAlunos([]);
+          setTickets({});
+        }
+      };
+      carregarDados();
+    }, [])
+  );
+  const getStatusIcon = (aluno) => {
+    const hoje = new Date().toISOString().split("T")[0];
+    const ticket = tickets[String(aluno.matricula)];
 
-      // Carrega status dos tickets
-      const ticketsRaw = await AsyncStorage.getItem("tickets");
-      const tickets = ticketsRaw ? JSON.parse(ticketsRaw) : {};
-      const hoje = new Date().toISOString().split("T")[0];
-
-      // Monta status por matrícula
-      const status = {};
-      listaAlunos.forEach(aluno => {
-        const info = tickets[aluno.matricula];
-        status[aluno.matricula] = info && info.data === hoje && info.recebido;
-      });
-      setStatusTickets(status);
+    if (!ticket || ticket.data !== hoje) {
+      return <Ionicons name="ellipse" size={20} color="gray" />;
     }
-    carregarDados();
-  }, []);
+    if (ticket.usado) {
+      return <Ionicons name="ellipse" size={20} color="green" />;
+    }
+    if (ticket.recebido) {
+      return <Ionicons name="ellipse" size={20} color="blue" />;
+    }
+    return <Ionicons name="ellipse" size={20} color="#B0B0B0" />;
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Status dos Tickets de Hoje</Text>
       <FlatList
         data={alunos}
-        keyExtractor={(item, idx) => idx.toString()}
+        keyExtractor={(item) => item.matricula}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.info}>
+            <Text style={styles.itemText}>
               {item.nome} - {item.matricula} - {item.turma}
             </Text>
-            <Text style={[styles.status, statusTickets[item.matricula] ? styles.pego : styles.naoPego]}>
-              {statusTickets[item.matricula] ? "Pegou hoje" : "Não pegou"}
-            </Text>
+            {getStatusIcon(item)}
           </View>
         )}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20 }}>Nenhum aluno cadastrado.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>Nenhum aluno cadastrado.</Text>
+        }
       />
     </View>
   );
 }
-

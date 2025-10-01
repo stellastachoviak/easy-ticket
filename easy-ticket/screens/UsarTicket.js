@@ -1,26 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground } from "react-native";
+import React, { useState, useEffect,useCallback } from "react";
+import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useFocusEffect } from "@react-navigation/native";
+import { useAuth } from "../AuthContext"; // Importa AuthContext
 
-export default function UsarTicket({ navigation, route }) {
+export default function UsarTicket() {
+  const { user: usuario } = useAuth(); // Pega o aluno logado
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [ticketValido, setTicketValido] = useState(false);
   const [ticketAtual, setTicketAtual] = useState(null);
 
-  const usuario = route.params?.usuario;
-
   const isFocused = useIsFocused();
 
-  // Carrega ticket sempre que a tela está focada ou o usuário muda
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     async function carregarTicket() {
       if (!usuario?.matricula) {
         setTicketValido(false);
         setTicketAtual(null);
         setTicketUsado(false);
+        setModalVisible(false);
         return;
       }
 
@@ -31,27 +32,31 @@ export default function UsarTicket({ navigation, route }) {
         const matricula = String(usuario.matricula);
         const ticket = tickets[matricula];
 
-        console.log("Ticket encontrado para matrícula", matricula, ":", ticket);
-
         if (ticket && ticket.data === hoje) {
-          setTicketValido(ticket.recebido && !ticket.usado);
+          const valido = ticket.recebido && !ticket.usado;
+          setTicketValido(valido);
           setTicketAtual(ticket);
           setTicketUsado(!!ticket.usado);
+          setModalVisible(valido); 
         } else {
           setTicketValido(false);
           setTicketAtual(null);
           setTicketUsado(false);
+          setModalVisible(false);
         }
       } catch (e) {
         console.log("Erro ao carregar tickets:", e);
         setTicketValido(false);
         setTicketAtual(null);
         setTicketUsado(false);
+        setModalVisible(false);
       }
     }
 
-    if (isFocused) carregarTicket();
-  }, [isFocused, usuario]);
+    carregarTicket();
+  }, [usuario])
+);
+
 
   const handleConfirmarPresenca = () => {
     setModalVisible(false);
@@ -100,7 +105,7 @@ export default function UsarTicket({ navigation, route }) {
 
   return (
     <ImageBackground
-      source={require('../assets/coffe_imgg.png')}
+      source={require('../assets/ticket.jpg')}
       style={{ flex: 1 }}
       resizeMode="cover"
     >
@@ -130,14 +135,21 @@ export default function UsarTicket({ navigation, route }) {
           </View>
         )}
 
-        <Button
-          title={ticketUsado ? "Ticket já usado" : "Usar Ticket"}
-          onPress={handleUsarTicket}
-          disabled={!ticketValido || ticketUsado}
-        />
+        <TouchableOpacity
+  style={[
+    styles.primaryButton,
+    (!ticketValido || ticketUsado) && { opacity: 5 } // desabilitado visual
+  ]}
+  onPress={handleUsarTicket}
+  disabled={!ticketValido || ticketUsado}
+>
+  <Text style={styles.primaryButtonText}>
+    {ticketUsado ? "Ticket já usado" : "Usar Ticket"}
+  </Text>
+</TouchableOpacity>
 
         {!ticketValido && !ticketUsado && (
-          <Text style={{ color: "red", marginTop: 20 }}>
+          <Text style={{ color: "#F44336", marginTop: 20 }}>
             Você não possui um ticket válido para usar.
           </Text>
         )}
@@ -151,10 +163,19 @@ export default function UsarTicket({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   title: { fontSize: 24, marginBottom: 20 },
-  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContent: { backgroundColor: "white", padding: 20, borderRadius: 10, alignItems: "center" },
+  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#E18B5D" },
+  modalContent: { backgroundColor: "#FFFFFF", padding: 20, borderRadius: 10, alignItems: "center" },
   modalText: { fontSize: 16, marginBottom: 20, textAlign: "center" },
-  closeButton: { backgroundColor: "#2196F3", padding: 10, borderRadius: 5 },
-  closeButtonText: { color: "white", fontWeight: "bold", fontSize: 18 },
-  feedback: { color: "green", marginTop: 20, fontSize: 16 },
+  primaryButton: {
+    backgroundColor: "#D2B48C",
+    paddingVertical: 17,
+    borderRadius: 30,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
 });
