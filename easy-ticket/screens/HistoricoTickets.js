@@ -18,7 +18,7 @@ export default function HistoricoTickets() {
 
   return (
     <ImageBackground
-      source={require("../assets/ticket-triste.png")} // coloque a imagem dentro da pasta assets
+      source={require("../assets/ticket-triste.png")}
       style={styles.background}
       resizeMode="cover"
     >
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(240,255,255,0.85)", // camada translúcida pra não atrapalhar a leitura
+    backgroundColor: "rgba(240,255,255,0.85)",
     padding: 16,
   },
   item: {
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   text: {
-    color: "#333",
+    color: "#000000ff",
     fontSize: 16,
   },
   emptyText: {

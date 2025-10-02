@@ -54,23 +54,55 @@ export default function StatusTicketsHoje() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Status dos Tickets de Hoje</Text>
-      <Button title="Resetar Tickets e Logs" onPress={handleReset} />
-      <FlatList
-        data={alunos}
-        keyExtractor={(item) => item.matricula}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.itemText}>
-              {item.nome} - {item.matricula} - {item.turma}
-            </Text>
-            {getStatusIcon(item)}
-          </View>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Nenhum aluno cadastrado.</Text>
-        }
-      />
-    </View>
+  <Text style={styles.title}>Status dos Tickets de Hoje</Text>
+<Pressable
+  onPress={handleReset}
+  style={({ pressed }) => [
+    {
+      backgroundColor: pressed ? '#5a3b28' : '#6F4E37', 
+      paddingVertical: 12,
+      paddingHorizontal: 32,
+      borderRadius: 50,
+      alignItems: 'center',
+      marginBottom: 16,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+      transform: [{ scale: pressed ? 0.97 : 1 }],
+    },
+  ]}
+>
+  <Text
+    style={{
+      color: '#F3E5AB',
+      fontSize: 16,
+      fontFamily: 'Roboto_700Bold',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    }}
+  >
+    Resetar Tickets e Logs
+  </Text>
+</Pressable>
+
+
+  <FlatList
+    data={alunos}
+    keyExtractor={(item) => item.matricula}
+    renderItem={({ item }) => (
+      <View style={styles.item}>
+        <Text style={styles.itemText}>
+          {item.nome} - {item.matricula} - {item.turma}
+        </Text>
+        {getStatusIcon(item)}
+      </View>
+    )}
+    ListEmptyComponent={
+      <Text style={styles.empty}>Nenhum aluno cadastrado.</Text>
+    }
+  />
+</View>
   );
 }

@@ -34,7 +34,7 @@ function LogoutButton() {
         ]);
       }}
     >
-      <Text style={{ color: "#d19d61e3", fontWeight: "bold" }}>Sair</Text>
+      <Text style={{ color: "#F3E5AB", fontWeight: "bold" }}>Sair</Text>
     </TouchableOpacity>
   );
 }
@@ -48,22 +48,43 @@ export default function AppTabs() {
   }, [user?.turma, dispatch]);
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: true,
-        headerRight: () => <LogoutButton />,
-        tabBarActiveTintColor: "#007bff",
-        tabBarInactiveTintColor: "gray",
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-          if (route.name === "Principal") iconName = "home-outline";
-          else if (route.name === "Intervalo") iconName = "time-outline";
-          else if (route.name === "Ticket") iconName = "ticket-outline";
-          else if (route.name === "UsarTicket") iconName = "checkmark-done-outline";
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-      })}
-    >
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: true,
+      headerRight: () => <LogoutButton />,
+      headerStyle: {
+        backgroundColor: '#6F4E37',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontFamily: 'PlayfairDisplay_700Bold',
+        fontSize: 20,
+      },
+
+      
+      tabBarStyle: {
+        backgroundColor: '#F3E5AB', 
+        borderTopWidth: 0,  
+        elevation: 5, 
+      },
+      tabBarActiveTintColor: '#6F4E37',
+      tabBarInactiveTintColor: '#333', 
+      tabBarLabelStyle: {
+        fontFamily: 'Roboto_400Regular',
+        fontSize: 13,
+      },
+
+      tabBarIcon: ({ color, size }) => {
+        let iconName;
+        if (route.name === "Principal") iconName = "home-outline";
+        else if (route.name === "Intervalo") iconName = "time-outline";
+        else if (route.name === "Ticket") iconName = "ticket-outline";
+        else if (route.name === "UsarTicket") iconName = "checkmark-done-outline";
+        
+        return <Icon name={iconName} size={size} color={color} />;
+      },
+    })}
+  >
       <Tab.Screen name="Principal" component={HomeAluno} />
       <Tab.Screen name="Intervalo" component={TempoIntervalo} />
       <Tab.Screen name="Ticket" component={ReceberTicketScreen} />

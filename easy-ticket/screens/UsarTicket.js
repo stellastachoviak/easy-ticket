@@ -146,11 +146,10 @@ export default function UsarTicket() {
         </TouchableOpacity>
 
         {!ticketValido && !ticketUsado && (
-  <Text style={{ color: "#ff1100ff", marginTop: 30, textAlign: "center" }}>
-    Você não possui um ticket válido para usar.
-  </Text>
-)}
-
+          <Text style={{ color: "#ff1100ff", marginTop: 30, textAlign: "center" }}>
+            Você não possui um ticket válido para usar.
+          </Text>
+        )}
 
         {feedback !== "" ? <Text style={styles.feedback}>{feedback}</Text> : null}
       </View>

@@ -117,11 +117,11 @@ export default function EditarAluno({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9f9f9" },
+  container: { flex: 1, padding: 20, backgroundColor: "#D7C2A5" },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#8d6138ff",
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   picker: { width: "100%", height: 50, marginBottom: 20 },
   button: {
-    backgroundColor: "#2979ff",
+    backgroundColor: "#614326ff",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",

@@ -38,7 +38,7 @@ function LogoutButton({ navigation }) {
         ]);
       }}
     >
-      <Text style={{ color: '#007AFF', fontWeight: 'bold' }}>Sair</Text>
+      <Text style={{ color: '#F3E5AB', fontWeight: 'bold' }}>Sair</Text>
     </TouchableOpacity>
   );
 }
@@ -49,15 +49,51 @@ function DrawerAdmin() {
       initialRouteName="AdminHome"
       screenOptions={({ navigation }) => ({
         headerRight: () => <LogoutButton navigation={navigation} />,
+
+        headerStyle: {
+          backgroundColor: '#6F4E37', 
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+          fontFamily: 'PlayfairDisplay_700Bold',
+        },
+
+        drawerStyle: {
+          backgroundColor: '#F3E5AB', 
+        },
+        drawerActiveTintColor: '#6F4E37',  
+        drawerInactiveTintColor: '#333',  
+        drawerLabelStyle: {
+          fontFamily: 'Roboto_400Regular', 
+          fontSize: 16,
+        },
       })}
     >
-      <Drawer.Screen name="AdminHome" component={PrincipalAdm} options={{ title: 'Cadastrar aluno' }} />
-      <Drawer.Screen name="StatusTicketsHoje" component={StatusTicketsHoje} options={{ title: "Status dos Tickets de Hoje" }} />
-      <Drawer.Screen name="HistoricoTickets" component={HistoricoTickets} options={{ title: "Histórico de Tickets" }} />
-      <Drawer.Screen name="GerenciarTurmas" component={GerenciarTurmas} options={{ title: "Gerenciar Turmas" }} />
+      <Drawer.Screen
+        name="AdminHome"
+        component={PrincipalAdm}
+        options={{ title: 'Cadastrar aluno' }}
+      />
+      <Drawer.Screen
+        name="StatusTicketsHoje"
+        component={StatusTicketsHoje}
+        options={{ title: "Status dos Tickets de Hoje" }}
+      />
+      <Drawer.Screen
+        name="HistoricoTickets"
+        component={HistoricoTickets}
+        options={{ title: "Histórico de Tickets" }}
+      />
+      <Drawer.Screen
+        name="GerenciarTurmas"
+        component={GerenciarTurmas}
+        options={{ title: "Gerenciar Turmas" }}
+      />
     </Drawer.Navigator>
   );
 }
+
 
 function AppNavigator() {
   const dispatch = useDispatch();

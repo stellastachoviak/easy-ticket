@@ -44,7 +44,6 @@ export default function Login({ navigation }) {
   return (
     <ImageBackground source={require('../assets/cafeteria.png')} style={styles.container} resizeMode="cover">
   <View style={{ width: '90%', alignSelf: 'center', backgroundColor: 'rgba(243,236,231,0.92)', borderRadius: 32, padding: 24, alignItems: 'center' }}>
-        {/* Botões de seleção */}
         <View style={{ flexDirection: 'row', width: '100%', gap: 12, marginBottom: 24 }}>
           <TouchableOpacity
             style={[styles.button, { flex: 1 }, isAdm ? {} : { backgroundColor: '#D8D8D8' }]}
@@ -59,7 +58,9 @@ export default function Login({ navigation }) {
             <Text style={[styles.buttonText, !isAdm ? {} : { color: '#7A8C8C' }]}>Aluno</Text>
           </TouchableOpacity>
         </View>
-        {/* Campo Matrícula */}
+        
+
+
         <View style={styles.inputRow}>
           <Ionicons name="person" size={22} style={styles.icon} />
           <TextInput
@@ -71,7 +72,8 @@ export default function Login({ navigation }) {
             placeholderTextColor="#a1a1a1ff"
           />
         </View>
-        {/* Campo Senha */}
+          
+
         {isAdm ? (
           <View style={styles.inputRow}>
             <Ionicons name="lock-closed" size={22} style={styles.icon} />
@@ -85,14 +87,12 @@ export default function Login({ navigation }) {
             />
           </View>
         ) : null}
-        {/* Botão Entrar */}
         <TouchableOpacity
           style={styles.button}
           onPress={handleLogin}
         >
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
-        {/* Link Cadastro */}
         <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}
           style={{ marginTop: 18 }}>
         </TouchableOpacity>

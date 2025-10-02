@@ -57,8 +57,8 @@ function CadastrarAluno() {
 
   const salvarAluno = useCallback(async () => {
 
-    const regexNome = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/; // letras + acentos
-    const regexMatricula = /^[0-9]+$/; // apenas números
+    const regexNome = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/; 
+    const regexMatricula = /^[0-9]+$/; 
 
     if (!nome || !matricula || !turma) {
       Alert.alert("Erro", "Todos os campos devem estar preenchidos");
