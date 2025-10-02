@@ -5,8 +5,10 @@ import { useTime } from "../TimeContext";
 export default function TempoIntervalo() {
   const { intervaloAtivo, tempoRestante, mensagem, turmaAtual } = useTime();
 
+  const acabou = tempoRestante <= 0;
+
   function formatarTempo(segundos) {
-    if (segundos <= 0) return "00:00";
+    if (segundos <= 0) return "";
 
     const horas = Math.floor(segundos / 3600);
     const minutos = Math.floor((segundos % 3600) / 60);
@@ -48,9 +50,11 @@ export default function TempoIntervalo() {
             {intervaloAtivo ? "ATIVO" : "INATIVO"}
           </Text>
           <Text style={styles.timer}>
-            {mensagem
-              ? `${mensagem}: ${formatarTempo(tempoRestante)}`
-              : formatarTempo(tempoRestante)}
+            {acabou
+              ? "intervalo ja acabou"
+              : mensagem
+                ? `${mensagem}: ${formatarTempo(tempoRestante)}`
+                : formatarTempo(tempoRestante)}
           </Text>
         </View>
       </View>
