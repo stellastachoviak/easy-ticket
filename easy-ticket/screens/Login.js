@@ -14,18 +14,23 @@ export default function Login({ navigation }) {
   const [senha, setSenha] = useState("");
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(""); // novo estado para mensagem de erro
 
   const handleLogin = async () => {
+    setError(""); // reseta erro anterior
     if (!matricula.trim() || (isAdm && !senha.trim())) {
-      Alert.alert("Erro", "Preencha todos os campos!");
+      setError("Preencha todos os campos!");
       return;
     }
     if (isAdm) {
       const encontrado = usuarios.admins.find(a => a.matricula === matricula && a.senha === senha);
       if (encontrado) {
         await dispatch(loginUser({ ...encontrado, type: "admin" }));
+        setError("");
         navigation.reset({ index: 0, routes: [{ name: "DrawerAdmin" }] });
-      } else Alert.alert("Erro", "Matrícula ou senha inválida!");
+      } else {
+        setError("Matrícula ou senha inválida!");
+      }
     } else {
       const json = await AsyncStorage.getItem("alunos");
       const alunos = json ? JSON.parse(json) : [];
@@ -34,9 +39,10 @@ export default function Login({ navigation }) {
         await dispatch(loginUser({ ...alunoEncontrado, type: "aluno" }));
         await AsyncStorage.setItem("usuarioLogado", JSON.stringify({ ...alunoEncontrado, type: "aluno" }));
         dispatch(setTurmaAtual(alunoEncontrado.turma));
+        setError("");
         navigation.reset({ index: 0, routes: [{ name: "AppTabs" }] });
       } else {
-        Alert.alert("Erro", "Matrícula não encontrada!");
+        setError("Matrícula não encontrada!");
       }
     }
   };
@@ -67,7 +73,7 @@ export default function Login({ navigation }) {
             style={styles.input}
             placeholder={isAdm ? "Matrícula" : "Matrícula do Aluno"}
             value={matricula}
-            onChangeText={setMatricula}
+            onChangeText={(t)=>{ setMatricula(t); if (error) setError(""); }}
             keyboardType="numeric"
             placeholderTextColor="#a1a1a1ff"
           />
@@ -81,11 +87,16 @@ export default function Login({ navigation }) {
               style={styles.input}
               placeholder="Senha"
               value={senha}
-              onChangeText={setSenha}
+              onChangeText={(t)=>{ setSenha(t); if (error) setError(""); }}
               secureTextEntry={!showPassword}
               placeholderTextColor="#a1a1a1ff"
             />
           </View>
+        ) : null}
+        {error ? (
+          <Text style={{ color: 'red', marginBottom: 12, alignSelf: 'flex-start' }}>
+            {error}
+          </Text>
         ) : null}
         <TouchableOpacity
           style={styles.button}
