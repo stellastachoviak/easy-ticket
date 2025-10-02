@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Alert, StyleSheet, ImageBackground } from "react-native";
+import { View, Text, Button, Alert, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -141,14 +141,29 @@ export default function ReceberTicketScreen({ route }) {
     >
       <View style={styles.container}>
         <Text style={styles.title}>Receber Ticket</Text>
-        {locationError ? <Text style={styles.alert}>{locationError}</Text> : null}
+        {locationError && <Text style={styles.alert}>{locationError}</Text>}
+        <Text style={{ fontSize: 12, color: 'gray' }}>
+          {`intervaloAtivo=${intervaloAtivo}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, ticketRecebidoHoje=${ticketRecebidoHoje}`}
+        </Text>
+        <Text style={{ color: "#2e2d2dff", marginBottom: 8 }}>
+          {distanciaEscola !== null
+            ? `Distância até a escola: ${distanciaEscola} metros (raio permitido: ${RAIO_ESCOLA})`
+            : "Distância até a escola: (localização não obtida)"}
+        </Text>
+        <TouchableOpacity
+  style={[
+    styles.primaryButton,
+    (!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted") && { opacity: 0.5 }
+  ]}
+  onPress={receberTicket}
+  disabled={!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
+>
+  <Text style={styles.primaryButtonText}>
+    {ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
+  </Text>
+</TouchableOpacity>
 
-        <Button
-          title={ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
-          onPress={receberTicket}
-          disabled={!ticketLiberado || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
-        />
-        {!dentroEscola && locationPermission === "granted" ? (
+        {!dentroEscola && locationPermission === "granted" && (
           <Text style={styles.alert}>
             {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
           </Text>
@@ -172,4 +187,17 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 20, fontFamily: "Playfair Display" },
   alert: { marginTop: 10, fontSize: 16, color: "red", textAlign: "center", fontFamily: "Playfair Display" },
   sucesso: { fontSize: 18, fontWeight: "bold", color: "green", marginTop: 10, fontFamily: "Playfair Display" },
+ primaryButton: {
+    backgroundColor: "#614326ff",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+    width: 140,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
 });

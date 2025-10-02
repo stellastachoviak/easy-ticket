@@ -5,7 +5,7 @@ const COLORS = {
 	button: '#E18B5D',
 	input: '#FFFFFF',
 	icon: '#7A8C8C',
-	text: '#333333',
+	text: '#000000ff',
 	textSecondary: '#7A8C8C',
 	border: '#D8D8D8',
 };

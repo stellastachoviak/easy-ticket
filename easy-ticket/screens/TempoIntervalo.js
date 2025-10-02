@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   },
   cardInativo: {
     borderWidth: 2,
-    borderColor: "#F44336",
+    borderColor: "#dd8819ff",
   },
   title: {
     fontSize: 22,

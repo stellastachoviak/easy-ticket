@@ -120,7 +120,7 @@ export default function UsarTicket() {
           </View>
         </Modal>
 
-        <Text style={styles.title}>Usar Ticket</Text>
+        <Text style={styles.title}>Usar Ticket</Text> 
 
         {ticketAtual && (
           <View style={{ marginBottom: 20, alignItems: "center" }}>
@@ -145,8 +145,8 @@ export default function UsarTicket() {
           </Text>
         </TouchableOpacity>
 
-        {!ticketValido && !ticketUsado ? (
-          <Text style={{ color: "#F44336", marginTop: 20 }}>
+        {!ticketValido && !ticketUsado && (
+          <Text style={{ color: "#ff1100ff", marginTop: 30, textAlign: "center" }}>
             Você não possui um ticket válido para usar.
           </Text>
         ) : null}
@@ -158,17 +158,18 @@ export default function UsarTicket() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
-  title: { fontSize: 24, marginBottom: 20 },
+  container: { flex: 2, justifyContent: "center", alignItems: "center" },
+  title: { fontSize: 40, marginBottom: 30 },
   modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#E18B5D" },
-  modalContent: { backgroundColor: "#FFFFFF", padding: 20, borderRadius: 10, alignItems: "center" },
+  modalContent: { backgroundColor: "#ffffffff", padding: 20, borderRadius: 10, alignItems: "center" },
   modalText: { fontSize: 16, marginBottom: 20, textAlign: "center" },
   primaryButton: {
-    backgroundColor: "#D2B48C",
-    paddingVertical: 17,
-    borderRadius: 30,
+    backgroundColor: "#614326ff",
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: "center",
     marginTop: 10,
+    width: 140,
   },
   primaryButtonText: {
     color: "#fff",

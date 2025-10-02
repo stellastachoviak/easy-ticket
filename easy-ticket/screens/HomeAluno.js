@@ -70,19 +70,19 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: "bold",
     marginBottom: 10,
     color: "#333333", 
   },
   subtitle: {
     fontSize: 18,
-    color: "#7A8C8C",
+    color: "#523711ff",
     marginBottom: 5,
   },
   info: {
     fontSize: 16,
-    color: "#86614cff",
+    color: "#a8501dff",
     marginTop: 20,
     textAlign: "center",
   },

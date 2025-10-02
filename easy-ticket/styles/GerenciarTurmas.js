@@ -1,14 +1,14 @@
 import { StyleSheet } from 'react-native';
 
 const COLORS = {
-  background: '#F3ECE7',
-  primary: '#D7C2A5',
+  background: '#D7C2A5',
+  primary: '#614326ff',
   success: '#4CAF50',
   danger: '#F44336',
   input: '#FFFFFF',
   text: '#333333',
   textSecondary: '#7A8C8C',
-  border: '#D8D8D8',
+  border: '#8d6138ff',
   cancel: '#AAAAAA',
 };
 
