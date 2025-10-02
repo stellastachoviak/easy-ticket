@@ -51,24 +51,22 @@ function DrawerAdmin() {
       screenOptions={({ navigation }) => ({
         headerRight: () => <LogoutButton navigation={navigation} />,
 
-        // 🔹 Cores do HEADER
         headerStyle: {
-          backgroundColor: '#6F4E37', // cor de fundo do cabeçalho (ex: marrom café)
+          backgroundColor: '#6F4E37', 
         },
-        headerTintColor: '#fff',       // cor do texto e ícones no header
+        headerTintColor: '#fff',
         headerTitleStyle: {
           fontWeight: 'bold',
-          fontFamily: 'PlayfairDisplay_700Bold', // fonte customizada (se carregada)
+          fontFamily: 'PlayfairDisplay_700Bold',
         },
 
-        // 🔹 Cores do Drawer (menu lateral)
         drawerStyle: {
-          backgroundColor: '#F3E5AB', // fundo do menu (bege claro)
+          backgroundColor: '#F3E5AB', 
         },
-        drawerActiveTintColor: '#6F4E37',  // cor do item ativo (selecionado)
-        drawerInactiveTintColor: '#333',   // cor dos itens inativos
+        drawerActiveTintColor: '#6F4E37',  
+        drawerInactiveTintColor: '#333',  
         drawerLabelStyle: {
-          fontFamily: 'Roboto_400Regular', // fonte dos nomes no menu
+          fontFamily: 'Roboto_400Regular', 
           fontSize: 16,
         },
       })}

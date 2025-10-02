@@ -102,7 +102,7 @@ export default function GerenciarTurmas() {
         <TouchableOpacity style={[styles.button, { backgroundColor: "#f44336" }]} onPress={limparCampos}>
           <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>
-      ) : null}
+      )}
       <Text style={styles.subtitle}>Turmas cadastradas:</Text>
       <FlatList
         data={turmas}

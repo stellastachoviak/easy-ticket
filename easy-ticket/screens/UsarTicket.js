@@ -149,7 +149,7 @@ export default function UsarTicket() {
           <Text style={{ color: "#ff1100ff", marginTop: 30, textAlign: "center" }}>
             Você não possui um ticket válido para usar.
           </Text>
-        ) : null}
+        )}
 
         {feedback !== "" ? <Text style={styles.feedback}>{feedback}</Text> : null}
       </View>

@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, ImageBackground, ActivityIndicator } from "react-native";
-import { useAuth } from "../AuthContext"; // Importa o AuthContext
+import { useAuth } from "../AuthContext";
 
 export default function HomeAluno() {
-  const { user: aluno } = useAuth(); // Pega o usuário logado
+  const { user: aluno } = useAuth();
 
   const toPlainString = (v) => {
     if (v === null || v === undefined) return "N/A";

@@ -18,9 +18,7 @@ export default function ReceberTicketScreen({ route }) {
   const [distanciaEscola, setDistanciaEscola] = useState(null);
 
   const ESCOLA_COORDS = { latitude: -27.6183, longitude: -48.6628 };
-  const RAIO_ESCOLA = 200; // metros
-
-  // Solicita permissão de localização
+  const RAIO_ESCOLA = 200;
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -44,7 +42,6 @@ export default function ReceberTicketScreen({ route }) {
   }
 }, [aluno, turmaAtual]);
 
-  // Obtem localização contínua
   useEffect(() => {
     if (locationPermission !== "granted") return;
 
@@ -167,7 +164,7 @@ export default function ReceberTicketScreen({ route }) {
           <Text style={styles.alert}>
             {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
           </Text>
-        ) : null}
+        )  }
         {dentroEscola && ticketLiberado && !intervaloAtivo ? (
           <Text style={styles.alert}>Janela antecipada: você já pode receber (faltam {Math.max(0, Math.floor(tempoRestante / 60))} min para o intervalo).</Text>
         ) : null}

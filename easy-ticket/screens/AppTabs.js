@@ -43,7 +43,7 @@ export default function AppTabs() {
   const { setTurmaAtual } = useTime();
 
   React.useEffect(() => {
-    if (user?.turma) setTurmaAtual(user.turma); // garante que a turma esteja sempre atualizada
+    if (user?.turma) setTurmaAtual(user.turma);
   }, [user?.turma, setTurmaAtual]);
 
   return (
@@ -51,31 +51,28 @@ export default function AppTabs() {
     screenOptions={({ route }) => ({
       headerShown: true,
       headerRight: () => <LogoutButton />,
-      
-      // 🔹 HEADER (barra superior)
       headerStyle: {
-        backgroundColor: '#6F4E37', // marrom café
+        backgroundColor: '#6F4E37',
       },
-      headerTintColor: '#fff', // textos brancos
+      headerTintColor: '#fff',
       headerTitleStyle: {
         fontFamily: 'PlayfairDisplay_700Bold',
         fontSize: 20,
       },
 
-      // 🔹 TAB BAR (barra inferior)
+      
       tabBarStyle: {
-        backgroundColor: '#F3E5AB', // bege claro
-        borderTopWidth: 0,          // remove linha de cima
-        elevation: 5,               // leve sombra
+        backgroundColor: '#F3E5AB', 
+        borderTopWidth: 0,  
+        elevation: 5, 
       },
-      tabBarActiveTintColor: '#6F4E37', // ativo em marrom
-      tabBarInactiveTintColor: '#333',  // inativo em cinza escuro
+      tabBarActiveTintColor: '#6F4E37',
+      tabBarInactiveTintColor: '#333', 
       tabBarLabelStyle: {
         fontFamily: 'Roboto_400Regular',
         fontSize: 13,
       },
 
-      // 🔹 ÍCONES
       tabBarIcon: ({ color, size }) => {
         let iconName;
         if (route.name === "Principal") iconName = "home-outline";
