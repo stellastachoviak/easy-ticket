@@ -99,7 +99,7 @@ export default function GerenciarTurmas() {
         <Text style={styles.buttonText}>{editando !== null ? "Salvar Edição" : "Adicionar Turma"}</Text>
       </TouchableOpacity>
       {editando !== null && (
-        <TouchableOpacity style={[styles.button, { backgroundColor: "#aaa" }]} onPress={limparCampos}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: "#f44336" }]} onPress={limparCampos}>
           <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>
       )}

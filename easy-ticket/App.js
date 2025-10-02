@@ -39,7 +39,7 @@ function LogoutButton({ navigation }) {
         ]);
       }}
     >
-      <Text style={{ color: '#007AFF', fontWeight: 'bold' }}>Sair</Text>
+      <Text style={{ color: '#F3E5AB', fontWeight: 'bold' }}>Sair</Text>
     </TouchableOpacity>
   );
 }
@@ -50,9 +50,34 @@ function DrawerAdmin() {
       initialRouteName="AdminHome"
       screenOptions={({ navigation }) => ({
         headerRight: () => <LogoutButton navigation={navigation} />,
+
+        // 🔹 Cores do HEADER
+        headerStyle: {
+          backgroundColor: '#6F4E37', // cor de fundo do cabeçalho (ex: marrom café)
+        },
+        headerTintColor: '#fff',       // cor do texto e ícones no header
+        headerTitleStyle: {
+          fontWeight: 'bold',
+          fontFamily: 'PlayfairDisplay_700Bold', // fonte customizada (se carregada)
+        },
+
+        // 🔹 Cores do Drawer (menu lateral)
+        drawerStyle: {
+          backgroundColor: '#F3E5AB', // fundo do menu (bege claro)
+        },
+        drawerActiveTintColor: '#6F4E37',  // cor do item ativo (selecionado)
+        drawerInactiveTintColor: '#333',   // cor dos itens inativos
+        drawerLabelStyle: {
+          fontFamily: 'Roboto_400Regular', // fonte dos nomes no menu
+          fontSize: 16,
+        },
       })}
     >
-      <Drawer.Screen name="AdminHome" component={PrincipalAdm} options={{ title: 'Cadastrar aluno' }} />
+      <Drawer.Screen
+        name="AdminHome"
+        component={PrincipalAdm}
+        options={{ title: 'Cadastrar aluno' }}
+      />
       <Drawer.Screen
         name="StatusTicketsHoje"
         component={StatusTicketsHoje}
@@ -71,6 +96,7 @@ function DrawerAdmin() {
     </Drawer.Navigator>
   );
 }
+
 
 function AppNavigator() {
   const { user, isLoading } = useAuth();
