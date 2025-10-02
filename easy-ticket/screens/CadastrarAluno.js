@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   FlatList,
-  StyleSheet,
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import styles from "../styles/CadastrarAluno"
-function PrincipalAdm() {
+import styles from "../styles/CadastrarAluno";
+
+function CadastrarAluno() {
   const [nome, setNome] = useState("");
   const [matricula, setMatricula] = useState("");
   const [turma, setTurma] = useState("");
@@ -22,15 +22,8 @@ function PrincipalAdm() {
   const navigation = useNavigation();
 
   useFocusEffect(
-  React.useCallback(() => {
-    carregarAlunos();
-    carregarTurmas();
-  }, [])
-);
-
-
-  useFocusEffect(
     React.useCallback(() => {
+      carregarAlunos();
       carregarTurmas();
     }, [])
   );
@@ -62,7 +55,7 @@ function PrincipalAdm() {
     }
   };
 
-  const salvarAluno = async () => {
+  const salvarAluno = useCallback(async () => {
 
     const regexNome = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/; // letras + acentos
     const regexMatricula = /^[0-9]+$/; // apenas números
@@ -82,6 +75,11 @@ function PrincipalAdm() {
       return;
     }
 
+    if (turmasDisponiveis.length === 0) {
+      Alert.alert("Erro", "Nenhuma turma cadastrada.");
+      return;
+    }
+
     if (alunos.some((a) => a.matricula === matricula)) {
       Alert.alert("Erro", "Já existe um aluno com essa matrícula");
       return;
@@ -95,13 +93,13 @@ function PrincipalAdm() {
     setNome("");
     setMatricula("");
     setTurma(turmasDisponiveis[0]?.nome || "");
-  };
+  }, [nome, matricula, turma, alunos, turmasDisponiveis]);
 
-  const excluirAluno = async (matricula) => {
+  const excluirAluno = useCallback(async (matricula) => {
     const novaLista = alunos.filter((a) => a.matricula !== matricula);
     setAlunos(novaLista);
     await AsyncStorage.setItem("alunos", JSON.stringify(novaLista));
-  };
+  }, [alunos]);
 
   return (
     <View style={styles.container}>
@@ -171,4 +169,4 @@ function PrincipalAdm() {
   );
 }
 
-export default PrincipalAdm;
+export default CadastrarAluno;

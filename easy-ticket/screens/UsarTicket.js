@@ -2,10 +2,10 @@ import React, { useState, useCallback } from "react";
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { useAuth } from "../AuthContext";
+import { useSelector } from "react-redux";
 
 export default function UsarTicket() {
-  const { user: usuario } = useAuth();
+  const usuario = useSelector(s => s.auth.user);
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -146,10 +146,11 @@ export default function UsarTicket() {
         </TouchableOpacity>
 
         {!ticketValido && !ticketUsado && (
-          <Text style={{ color: "#ff1100ff", marginTop: 30, textAlign: "center" }}>
-            Você não possui um ticket válido para usar.
-          </Text>
-        ) : null}
+  <Text style={{ color: "#ff1100ff", marginTop: 30, textAlign: "center" }}>
+    Você não possui um ticket válido para usar.
+  </Text>
+)}
+
 
         {feedback !== "" ? <Text style={styles.feedback}>{feedback}</Text> : null}
       </View>

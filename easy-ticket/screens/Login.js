@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import usuarios from "../data/usuarios.json";
-import { useTime } from "../TimeContext";
-import { useAuth } from "../AuthContext";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../redux/authSlice";
+import { setTurmaAtual } from "../redux/timeSlice";
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/LoginStyles';
 
@@ -11,8 +12,7 @@ export default function Login({ navigation }) {
   const [isAdm, setIsAdm] = useState(true);
   const [matricula, setMatricula] = useState("");
   const [senha, setSenha] = useState("");
-  const { setTurmaAtual } = useTime();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
@@ -23,7 +23,7 @@ export default function Login({ navigation }) {
     if (isAdm) {
       const encontrado = usuarios.admins.find(a => a.matricula === matricula && a.senha === senha);
       if (encontrado) {
-        await login({ ...encontrado, type: "admin" });
+        await dispatch(loginUser({ ...encontrado, type: "admin" }));
         navigation.reset({ index: 0, routes: [{ name: "DrawerAdmin" }] });
       } else Alert.alert("Erro", "Matrícula ou senha inválida!");
     } else {
@@ -31,10 +31,12 @@ export default function Login({ navigation }) {
       const alunos = json ? JSON.parse(json) : [];
       const alunoEncontrado = alunos.find(a => a.matricula === matricula);
       if (alunoEncontrado) {
-        await login({ ...alunoEncontrado, type: "aluno" });
+        await dispatch(loginUser({ ...alunoEncontrado, type: "aluno" }));
         await AsyncStorage.setItem("usuarioLogado", JSON.stringify({ ...alunoEncontrado, type: "aluno" }));
-        setTurmaAtual(alunoEncontrado.turma);
+        dispatch(setTurmaAtual(alunoEncontrado.turma));
         navigation.reset({ index: 0, routes: [{ name: "AppTabs" }] });
+      } else {
+        Alert.alert("Erro", "Matrícula não encontrada!");
       }
     }
   };

@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, ImageBackground, ActivityIndicator } from "react-native";
-import { useAuth } from "../AuthContext"; // Importa o AuthContext
+import { useSelector } from "react-redux";
 
 export default function HomeAluno() {
-  const { user: aluno } = useAuth(); // Pega o usuário logado
+  const aluno = useSelector(s => s.auth.user);
 
   const toPlainString = (v) => {
     if (v === null || v === undefined) return "N/A";
@@ -37,14 +37,6 @@ export default function HomeAluno() {
   const nome = toPlainString(aluno?.nome) || "Aluno";
   const matricula = toPlainString(aluno?.matricula);
   const turma = toPlainString(aluno?.turma);
-
-  // Log de depuração
-  console.log("[HomeAluno] render ->", {
-    aluno,
-    nome, nomeType: typeof nome,
-    matricula, matriculaType: typeof matricula,
-    turma, turmaType: typeof turma
-  });
 
   return (
     <ImageBackground

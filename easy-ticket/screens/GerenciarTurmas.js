@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, ImageBackground, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "../styles/GerenciarTurmas";
+import { useDispatch } from "react-redux";
+import { loadTurmas } from "../redux/timeSlice";
+
 export default function GerenciarTurmas() {
   const [turmas, setTurmas] = useState([]);
   const [nome, setNome] = useState("");
   const [inicio, setInicio] = useState("");
   const [fim, setFim] = useState("");
   const [editando, setEditando] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     carregarTurmas();
@@ -21,6 +25,7 @@ export default function GerenciarTurmas() {
   const salvarTurmas = async (lista) => {
     setTurmas(lista);
     await AsyncStorage.setItem("turmas", JSON.stringify(lista));
+    dispatch(loadTurmas()); // sincroniza slice
   };
 
   const limparCampos = () => {

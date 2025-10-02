@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet, Button, Alert } from "react-native";
+import { View, Text, FlatList, Button, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,7 +27,8 @@ export default function StatusTicketsHoje() {
 
   const handleReset = async () => {
     try {
-      await AsyncStorage.multiRemove(["tickets", "tickets_logs"]);
+      // Remove chave padronizada e antiga (retrocompatibilidade)
+      await AsyncStorage.multiRemove(["tickets", "ticket_logs", "tickets_logs"]);
       setTickets({});
       Alert.alert("Sucesso", "Tickets e logs foram resetados.");
     } catch (e) {

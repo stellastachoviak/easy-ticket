@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, Alert, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
+import { View, Text, Alert, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useTime } from "../TimeContext";
+import { useSelector, useDispatch } from "react-redux";
+import { setTurmaAtual } from "../redux/timeSlice";
 
 export default function ReceberTicketScreen({ route }) {
   const alunoParam = route?.params?.aluno;
   const [aluno, setAluno] = useState(alunoParam || null);
 
-  const { intervaloAtivo, mensagem, turmaAtual, setTurmaAtual, loadingTurmas, ticketLiberado, tempoRestante } = useTime();
+  const dispatch = useDispatch();
+  const {
+    intervaloAtivo,
+    mensagem,
+    turmaAtual,
+    loadingTurmas,
+    ticketLiberado,
+    tempoRestante
+  } = useSelector(s => s.time);
   const [location, setLocation] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
   const [ticketRecebidoHoje, setTicketRecebidoHoje] = useState(false);
@@ -36,13 +45,13 @@ export default function ReceberTicketScreen({ route }) {
       if (raw) {
         const alunoObj = JSON.parse(raw);
         setAluno(alunoObj);
-        if (alunoObj?.turma && !turmaAtual) setTurmaAtual(alunoObj.turma);
+        if (alunoObj?.turma && !turmaAtual) dispatch(setTurmaAtual(alunoObj.turma));
       }
     })();
   } else {
-    if (aluno?.turma && !turmaAtual) setTurmaAtual(aluno.turma);
+    if (aluno?.turma && !turmaAtual) dispatch(setTurmaAtual(aluno.turma));
   }
-}, [aluno, turmaAtual]);
+}, [aluno, turmaAtual, dispatch]);
 
   // Obtem localização contínua
   useEffect(() => {
@@ -142,41 +151,46 @@ export default function ReceberTicketScreen({ route }) {
       <View style={styles.container}>
         <Text style={styles.title}>Receber Ticket</Text>
         {locationError && <Text style={styles.alert}>{locationError}</Text>}
-        <Text style={{ fontSize: 12, color: 'gray' }}>
-          {`intervaloAtivo=${intervaloAtivo}, turmaAtual=${turmaAtual}, mensagem=${mensagem}, ticketRecebidoHoje=${ticketRecebidoHoje}`}
-        </Text>
-        <Text style={{ color: "#2e2d2dff", marginBottom: 8 }}>
-          {distanciaEscola !== null
-            ? `Distância até a escola: ${distanciaEscola} metros (raio permitido: ${RAIO_ESCOLA})`
-            : "Distância até a escola: (localização não obtida)"}
-        </Text>
         <TouchableOpacity
-  style={[
-    styles.primaryButton,
-    (!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted") && { opacity: 0.5 }
-  ]}
-  onPress={receberTicket}
-  disabled={!intervaloAtivo || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
->
-  <Text style={styles.primaryButtonText}>
-    {ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
-  </Text>
-</TouchableOpacity>
-
-        {!dentroEscola && locationPermission === "granted" && (
-          <Text style={styles.alert}>
-            {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
+          style={[
+            styles.primaryButton,
+            (() => {
+              const disabled = !ticketLiberado || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted";
+              return disabled && { opacity: 0.5 };
+            })()
+          ]}
+          onPress={receberTicket}
+          disabled={!ticketLiberado || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
+        >
+          <Text style={styles.primaryButtonText}>
+            {ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
           </Text>
-        ) : null}
-        {dentroEscola && ticketLiberado && !intervaloAtivo ? (
-          <Text style={styles.alert}>Janela antecipada: você já pode receber (faltam {Math.max(0, Math.floor(tempoRestante / 60))} min para o intervalo).</Text>
-        ) : null}
-        {dentroEscola && !ticketLiberado ? (
-          <Text style={styles.alert}>{mensagem || "Aguarde a liberação."}</Text>
-        ) : null}
-        {ticketRecebidoHoje ? (
-          <Text style={styles.sucesso}>Você já reivindicou seu ticket hoje.</Text>
-        ) : null}
+        </TouchableOpacity>
+
+{!dentroEscola && locationPermission === "granted" && (
+  <Text style={styles.alert}>
+    {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
+  </Text>
+)}
+
+{dentroEscola && ticketLiberado && !intervaloAtivo && (
+  <Text style={styles.alert}>
+    Janela antecipada: você já pode receber (faltam {Math.max(0, Math.floor(tempoRestante / 60))} min para o intervalo).
+  </Text>
+)}
+
+{dentroEscola && !ticketLiberado && (
+  <Text style={styles.alert}>
+    {mensagem || "Aguarde a liberação."}
+  </Text>
+)}
+
+{ticketRecebidoHoje && (
+  <Text style={styles.sucesso}>
+    Você já reivindicou seu ticket hoje.
+  </Text>
+)}
+
       </View>
     </ImageBackground>
   );

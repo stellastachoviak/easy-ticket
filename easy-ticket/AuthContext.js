@@ -1,41 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// DEPRECATED: Uso migrado para Redux. Não utilizar <AuthProvider>.
+import { useSelector, useDispatch } from "react-redux";
+import { loginUser, logoutUser } from "./redux/authSlice";
 
-const AuthContext = createContext();
-
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); 
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem("user");
-        if (storedUser) setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Erro ao carregar usuário:", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadUser();
-  }, []);
-
-  const login = async (userData) => {
-    setUser(userData);
-    await AsyncStorage.setItem("user", JSON.stringify(userData));
+// Mantido apenas para compatibilidade de chamadas existentes.
+export const useAuth = () => {
+  const user = useSelector(s => s.auth.user);
+  const isLoading = useSelector(s => s.auth.isLoading);
+  const dispatch = useDispatch();
+  return {
+    user,
+    isLoading,
+    login: (u) => dispatch(loginUser(u)),
+    logout: () => dispatch(logoutUser()),
   };
-
-  const logout = async () => {
-    setUser(null);
-    await AsyncStorage.removeItem("user");
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
-  );
 };
-
-export const useAuth = () => useContext(AuthContext);

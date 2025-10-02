@@ -7,8 +7,11 @@ export default function HistoricoTickets() {
 
   useEffect(() => {
     async function carregarLogs() {
-      const logsRaw = await AsyncStorage.getItem("ticket_logs");
-      setLogs(logsRaw ? JSON.parse(logsRaw).reverse() : []);
+      // Prioriza chave correta; tenta chave antiga para compatibilidade
+      const primary = await AsyncStorage.getItem("ticket_logs");
+      const legacy = !primary ? await AsyncStorage.getItem("tickets_logs") : null;
+      const raw = primary || legacy;
+      setLogs(raw ? JSON.parse(raw).reverse() : []);
     }
     carregarLogs();
   }, []);
@@ -26,7 +29,7 @@ export default function HistoricoTickets() {
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text style={styles.text}>
-                <Text style={{ fontWeight: "bold" }}>{item.usuario}</Text> ({item.turma}) usou o ticket em{" "}
+                <Text style={{ fontWeight: "bold" }}>{item.usuario}</Text> ({item.turma || "—"}) usou o ticket em{" "}
                 {new Date(item.data).toLocaleString()}
               </Text>
             </View>

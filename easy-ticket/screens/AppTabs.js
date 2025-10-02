@@ -2,8 +2,9 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity, Text, Alert } from "react-native";
-import { useAuth } from "../AuthContext";
-import { useTime } from "../TimeContext";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../redux/authSlice";
+import { setTurmaAtual } from "../redux/timeSlice";
 import { useNavigation } from '@react-navigation/native';
 
 import HomeAluno from "./HomeAluno";
@@ -14,7 +15,7 @@ import UsarTicket from "./UsarTicket";
 const Tab = createBottomTabNavigator();
 
 function LogoutButton() {
-  const { logout } = useAuth();
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
   return (
@@ -26,7 +27,7 @@ function LogoutButton() {
           {
             text: "Sim",
             onPress: async () => {
-              await logout();
+              await dispatch(logoutUser());
               navigation.reset({ index: 0, routes: [{ name: "Login" }] });
             },
           },
@@ -39,12 +40,12 @@ function LogoutButton() {
 }
 
 export default function AppTabs() {
-  const { user } = useAuth();
-  const { setTurmaAtual } = useTime();
+  const user = useSelector(s => s.auth.user);
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
-    if (user?.turma) setTurmaAtual(user.turma); // garante que a turma esteja sempre atualizada
-  }, [user?.turma, setTurmaAtual]);
+    if (user?.turma) dispatch(setTurmaAtual(user.turma));
+  }, [user?.turma, dispatch]);
 
   return (
     <Tab.Navigator
