@@ -144,7 +144,7 @@ function CadastrarAluno() {
         renderItem={({ item }) => (
           <View style={styles.item}>
             <Text style={styles.itemText}>
-              {item.nome} - {item.matricula} - {item.turma}
+              {`aluno: ${item.nome} | Matricula: ${item.matricula} | turma: ${item.turma}`}
             </Text>
             <View style={styles.buttonsRow}>
               <TouchableOpacity

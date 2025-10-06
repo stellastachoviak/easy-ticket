@@ -17,33 +17,46 @@ export default function Login({ navigation }) {
   const [error, setError] = useState(""); // novo estado para mensagem de erro
 
   const handleLogin = async () => {
-    setError(""); // reseta erro anterior
-    if (!matricula.trim() || (isAdm && !senha.trim())) {
-      setError("Preencha todos os campos!");
-      return;
-    }
-    if (isAdm) {
-      const encontrado = usuarios.admins.find(a => a.matricula === matricula && a.senha === senha);
-      if (encontrado) {
-        await dispatch(loginUser({ ...encontrado, type: "admin" }));
-        setError("");
-        navigation.reset({ index: 0, routes: [{ name: "DrawerAdmin" }] });
-      } else {
-        setError("Matrícula ou senha inválida!");
+    try {
+      setError(""); // reseta erro anterior
+      if (!matricula.trim() || (isAdm && !senha.trim())) {
+        const msg = "Preencha todos os campos!";
+        setError(msg);
+        Alert.alert("Erro", msg);
+        return;
       }
-    } else {
-      const json = await AsyncStorage.getItem("alunos");
-      const alunos = json ? JSON.parse(json) : [];
-      const alunoEncontrado = alunos.find(a => a.matricula === matricula);
-      if (alunoEncontrado) {
-        await dispatch(loginUser({ ...alunoEncontrado, type: "aluno" }));
-        await AsyncStorage.setItem("usuarioLogado", JSON.stringify({ ...alunoEncontrado, type: "aluno" }));
-        dispatch(setTurmaAtual(alunoEncontrado.turma));
-        setError("");
-        navigation.reset({ index: 0, routes: [{ name: "AppTabs" }] });
+      if (isAdm) {
+        const encontrado = usuarios.admins.find(a => a.matricula === matricula && a.senha === senha);
+        if (encontrado) {
+          await dispatch(loginUser({ ...encontrado, type: "admin" }));
+          setError("");
+          navigation.reset({ index: 0, routes: [{ name: "DrawerAdmin" }] });
+        } else {
+          const msg = "Matrícula ou senha inválida!";
+          setError(msg);
+          Alert.alert("Erro", msg);
+        }
       } else {
-        setError("Matrícula não encontrada!");
+        const json = await AsyncStorage.getItem("alunos");
+        const alunos = json ? JSON.parse(json) : [];
+        const alunoEncontrado = alunos.find(a => a.matricula === matricula);
+        if (alunoEncontrado) {
+          await dispatch(loginUser({ ...alunoEncontrado, type: "aluno" }));
+          await AsyncStorage.setItem("usuarioLogado", JSON.stringify({ ...alunoEncontrado, type: "aluno" }));
+          dispatch(setTurmaAtual(alunoEncontrado.turma));
+          setError("");
+          navigation.reset({ index: 0, routes: [{ name: "AppTabs" }] });
+        } else {
+          const msg = "Matrícula não encontrada!";
+          setError(msg);
+          Alert.alert("Erro", msg);
+        }
       }
+    } catch (err) {
+      console.error(err);
+      const msg = "Ocorreu um erro ao autenticar. Tente novamente.";
+      setError(msg);
+      Alert.alert("Erro", msg);
     }
   };
 

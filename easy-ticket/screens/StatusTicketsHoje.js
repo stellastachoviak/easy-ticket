@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, Button, Alert } from "react-native";
+import { View, Text, FlatList, Button, Alert, Pressable} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +7,13 @@ import styles from "../styles/StatusTicketsHojeStyles";
 export default function StatusTicketsHoje() {
   const [alunos, setAlunos] = useState([]);
   const [tickets, setTickets] = useState({});
+
+  const showLegend = () => {
+    Alert.alert(
+      "Legenda",
+      "Cinza: não pegou ticket\nAzul: pegou\nVerde: pegou e usou"
+    );
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -55,38 +62,56 @@ export default function StatusTicketsHoje() {
   return (
     <View style={styles.container}>
   <Text style={styles.title}>Status dos Tickets de Hoje</Text>
-<Pressable
-  onPress={handleReset}
-  style={({ pressed }) => [
-    {
-      backgroundColor: pressed ? '#5a3b28' : '#6F4E37', 
-      paddingVertical: 12,
-      paddingHorizontal: 32,
-      borderRadius: 50,
-      alignItems: 'center',
-      marginBottom: 16,
-      elevation: 3,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 3,
-      transform: [{ scale: pressed ? 0.97 : 1 }],
-    },
-  ]}
->
-  <Text
-    style={{
-      color: '#F3E5AB',
-      fontSize: 16,
-      fontFamily: 'Roboto_700Bold',
-      textTransform: 'uppercase',
-      letterSpacing: 1,
-    }}
-  >
-    Resetar Tickets e Logs
-  </Text>
-</Pressable>
+  <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+    <Pressable
+      onPress={handleReset}
+      style={({ pressed }) => [
+        {
+          backgroundColor: pressed ? '#5a3b28' : '#6F4E37',
+          paddingVertical: 12,
+          paddingHorizontal: 24,
+          borderRadius: 50,
+          alignItems: 'center',
+          elevation: 3,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+          transform: [{ scale: pressed ? 0.97 : 1 }],
+        },
+      ]}
+    >
+      <Text
+        style={{
+          color: '#F3E5AB',
+          fontSize: 16,
+          fontFamily: 'Roboto_700Bold',
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+        }}
+      >
+        Resetar Tickets e Logs
+      </Text>
+    </Pressable>
 
+    <Pressable
+      onPress={showLegend}
+      style={({ pressed }) => [
+        {
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          backgroundColor: pressed ? '#ddd' : '#f5f5f5',
+          alignItems: 'center',
+          justifyContent: 'center',
+          elevation: 2,
+        },
+      ]}
+      accessibilityLabel="Ajuda sobre legendas"
+    >
+      <Text style={{ fontSize: 20, color: '#6F4E37', fontWeight: '700' }}>?</Text>
+    </Pressable>
+  </View>
 
   <FlatList
     data={alunos}
