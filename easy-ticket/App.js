@@ -129,14 +129,11 @@ function AppNavigator() {
 export default function App() {
   const validDefault = isValidReduxStore(store);
   const validNamed = isValidReduxStore(namedStore);
-  // eslint-disable-next-line no-console
   console.log('STORE VALID (default, named, sameRef):', validDefault, validNamed, store === namedStore);
 
   if (!validDefault) {
-    // Fallback screen prevents cryptic Provider crash
     return (
       <>
-        {/* Diagnóstico básico (não usar em produção) */}
         <Text style={{ marginTop: 60, textAlign: 'center', color: 'red', fontSize: 16 }}>
           Erro: Redux store inválido. Veja logs do console.
         </Text>
