@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 
 export default function UsarTicket() {
   const usuario = useSelector(s => s.auth.user);
+  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(true);
   const [ticketUsado, setTicketUsado] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -57,6 +58,11 @@ export default function UsarTicket() {
 
   const handleConfirmarPresenca = () => {
     setModalVisible(false);
+  };
+
+  const handleNotWithAttendant = () => {
+    setModalVisible(false);
+    navigation.goBack()
   };
 
   const handleUsarTicket = async () => {
@@ -111,11 +117,21 @@ export default function UsarTicket() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>
-                Somente o atendente pode receber o ticket.{"\n"}Clique no X para confirmar que está na presença do atendente.
+                Somente o atendente pode receber o ticket.{"\n"}Clique no Sim para confirmar que está na presença do atendente.
               </Text>
               <TouchableOpacity style={styles.closeButton} onPress={handleConfirmarPresenca}>
-                <Text style={styles.closeButtonText}>X</Text>
+                <Text style={styles.closeButtonText}>Sim</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.closeButton, { marginTop: 12, backgroundColor: "#f2f2f2", paddingVertical: 10, paddingHorizontal: 8 }]}
+                onPress={handleNotWithAttendant}
+              >
+                <Text style={[styles.closeButtonText, { color: "#333", fontSize: 14 }]}>
+                  Não estou na presença (voltar à tela inicial)
+                </Text>
+              </TouchableOpacity>
+
             </View>
           </View>
         </Modal>

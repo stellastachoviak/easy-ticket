@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Alert, StyleSheet, TouchableOpacity, ImageBackground } from "react-native";
+import {
+  View,
+  Text,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,  
+  ActivityIndicator,
+} from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSelector, useDispatch } from "react-redux";
 import { setTurmaAtual } from "../redux/timeSlice";
+import styles from "../styles/Ticket";
+
 
 export default function ReceberTicketScreen({ route }) {
   const alunoParam = route?.params?.aluno;
@@ -17,69 +27,148 @@ export default function ReceberTicketScreen({ route }) {
     turmaAtual,
     loadingTurmas,
     ticketLiberado,
-    tempoRestante
-  } = useSelector(s => s.time);
+    tempoRestante,
+  } = useSelector((s) => s.time);
+
   const [location, setLocation] = useState(null);
   const [dentroEscola, setDentroEscola] = useState(false);
   const [ticketRecebidoHoje, setTicketRecebidoHoje] = useState(false);
   const [locationPermission, setLocationPermission] = useState(null);
   const [locationError, setLocationError] = useState("");
   const [distanciaEscola, setDistanciaEscola] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(true);
+
 
   const ESCOLA_COORDS = { latitude: -27.6183, longitude: -48.6628 };
-  const RAIO_ESCOLA = 200;
+  const RAIO_ESCOLA = 200; // metros
+
+
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       setLocationPermission(status);
-      if (status !== "granted") setLocationError("Permissão negada. Ative a localização.");
+      if (status !== "granted")
+        setLocationError("Permissão negada. Ative a localização.");
     })();
   }, []);
 
+
   useEffect(() => {
-  if (!aluno) {
-    (async () => {
-      const raw = await AsyncStorage.getItem("usuarioLogado");
-      if (raw) {
-        const alunoObj = JSON.parse(raw);
-        setAluno(alunoObj);
-        if (alunoObj?.turma && !turmaAtual) dispatch(setTurmaAtual(alunoObj.turma));
-      }
-    })();
-  } else {
-    if (aluno?.turma && !turmaAtual) dispatch(setTurmaAtual(aluno.turma));
-  }
-}, [aluno, turmaAtual, dispatch]);
+    if (!aluno) {
+      (async () => {
+        const raw = await AsyncStorage.getItem("usuarioLogado");
+        if (raw) {
+          const alunoObj = JSON.parse(raw);
+          setAluno(alunoObj);
+          if (alunoObj?.turma && !turmaAtual)
+            dispatch(setTurmaAtual(alunoObj.turma));
+        }
+      })();
+    } else {
+      if (aluno?.turma && !turmaAtual) dispatch(setTurmaAtual(aluno.turma));
+    }
+  }, [aluno, turmaAtual, dispatch]);
+
 
   useEffect(() => {
     if (locationPermission !== "granted") return;
 
     let subscriber;
+    let initialFix = false;
+
     const startWatchingLocation = async () => {
-      subscriber = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, distanceInterval: 1, timeInterval: 5000 },
-        (loc) => {
-          setLocation(loc);
-          if (loc?.coords) {
+      try {
+        setLoadingLocation(true);
+        console.log("📡 Iniciando monitoramento de localização...");
+
+
+        const firstLoc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Highest,
+        });
+
+        if (firstLoc?.coords) {
+          const distancia = getDistance(
+            {
+              latitude: firstLoc.coords.latitude,
+              longitude: firstLoc.coords.longitude,
+            },
+            ESCOLA_COORDS
+          );
+          console.log(
+            "📍 Local inicial:",
+            firstLoc.coords.latitude,
+            firstLoc.coords.longitude,
+            "| Escola:",
+            ESCOLA_COORDS.latitude,
+            ESCOLA_COORDS.longitude,
+            "| Distância inicial:",
+            distancia,
+            "m"
+          );
+
+          setDistanciaEscola(distancia);
+          setDentroEscola(distancia <= RAIO_ESCOLA);
+          setLocationError("");
+          initialFix = true;
+        }
+
+
+        subscriber = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.BestForNavigation,
+            distanceInterval: 2,
+            timeInterval: 4000,
+          },
+          (loc) => {
+            if (!loc?.coords) {
+              setLocationError("Não foi possível obter coordenadas.");
+              return;
+            }
+
             const distancia = getDistance(
-              { latitude: loc.coords.latitude, longitude: loc.coords.longitude },
+              {
+                latitude: loc.coords.latitude,
+                longitude: loc.coords.longitude,
+              },
               ESCOLA_COORDS
             );
+
+            console.log(
+              "📍 Atualização:",
+              loc.coords.latitude,
+              loc.coords.longitude,
+              "| Escola:",
+              ESCOLA_COORDS.latitude,
+              ESCOLA_COORDS.longitude,
+              "| Distância:",
+              distancia,
+              "m"
+            );
+
+            setLocation(loc);
             setDistanciaEscola(distancia);
             setDentroEscola(distancia <= RAIO_ESCOLA);
             setLocationError("");
-          } else {
-            setLocationError("Não foi possível obter coordenadas.");
-            setDentroEscola(false);
+            if (!initialFix) {
+              initialFix = true;
+              setLoadingLocation(false);
+            }
           }
-        }
-      );
+        );
+      } catch (error) {
+        console.error("❌ Erro ao obter localização:", error);
+        setLocationError("Erro ao obter localização. Verifique o GPS.");
+      } finally {
+        // Timeout para evitar travar no loading
+        setTimeout(() => setLoadingLocation(false), 8000);
+      }
     };
+
     startWatchingLocation();
     return () => subscriber?.remove();
   }, [locationPermission]);
 
-  // Carrega status do ticket
+
   useEffect(() => {
     if (!aluno?.matricula || !turmaAtual || loadingTurmas) return;
 
@@ -97,6 +186,7 @@ export default function ReceberTicketScreen({ route }) {
     };
     carregarStatusTicket();
   }, [ticketLiberado, turmaAtual, mensagem, aluno, loadingTurmas]);
+
 
   const receberTicket = async () => {
     if (!ticketLiberado || !dentroEscola) {
@@ -132,73 +222,87 @@ export default function ReceberTicketScreen({ route }) {
     }
   };
 
+
   if (loadingTurmas)
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.center}>
         <Text>Carregando turmas...</Text>
       </View>
     );
-  
+
+  if (loadingLocation)
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#614326" />
+        <Text style={{ marginTop: 10 }}>Calculando localização...</Text>
+      </View>
+    );
+
+
   return (
     <ImageBackground
-      source={require('../assets/ticket.jpg')}
+      source={require("../assets/ticket.jpg")}
       style={{ flex: 1 }}
       resizeMode="cover"
     >
       <View style={styles.container}>
         <Text style={styles.title}>Receber Ticket</Text>
+
         {locationError && <Text style={styles.alert}>{locationError}</Text>}
+
         <TouchableOpacity
           style={[
             styles.primaryButton,
             (() => {
-              const disabled = !ticketLiberado || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted";
+              const disabled =
+                !ticketLiberado ||
+                !dentroEscola ||
+                ticketRecebidoHoje ||
+                locationPermission !== "granted";
               return disabled && { opacity: 0.5 };
-            })()
+            })(),
           ]}
           onPress={receberTicket}
-          disabled={!ticketLiberado || !dentroEscola || ticketRecebidoHoje || locationPermission !== "granted"}
+          disabled={
+            !ticketLiberado ||
+            !dentroEscola ||
+            ticketRecebidoHoje ||
+            locationPermission !== "granted"
+          }
         >
           <Text style={styles.primaryButtonText}>
             {ticketRecebidoHoje ? "Ticket já recebido" : "Receber Ticket"}
           </Text>
         </TouchableOpacity>
 
+
+        {distanciaEscola !== null && (
+          <Text style={{ marginTop: 10, color: "black" }}>
+            Distância atual: {Math.round(distanciaEscola)} m
+          </Text>
+        )}
+
         {!dentroEscola && locationPermission === "granted" && (
           <Text style={styles.alert}>
-            {`Você precisa estar dentro de ${RAIO_ESCOLA} metros da escola para receber o ticket.`}
+            Você precisa estar dentro de {RAIO_ESCOLA} metros da escola.
           </Text>
-        )  }
+        )}
         {dentroEscola && ticketLiberado && !intervaloAtivo ? (
-          <Text style={styles.alert}>Janela antecipada: você já pode receber (faltam {Math.max(0, Math.floor(tempoRestante / 60))} min para o intervalo).</Text>
+          <Text style={styles.alert}>
+            Janela antecipada: você já pode receber (faltam{" "}
+            {Math.max(0, Math.floor(tempoRestante / 60))} min para o intervalo).
+          </Text>
         ) : null}
         {dentroEscola && !ticketLiberado ? (
           <Text style={styles.alert}>{mensagem || "Aguarde a liberação."}</Text>
         ) : null}
         {ticketRecebidoHoje ? (
-          <Text style={styles.sucesso}>Você já reivindicou seu ticket hoje.</Text>
+          <Text style={styles.sucesso}>
+            Você já reivindicou seu ticket hoje.
+          </Text>
         ) : null}
       </View>
     </ImageBackground>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20, fontFamily: "Playfair Display" },
-  alert: { marginTop: 10, fontSize: 16, color: "red", textAlign: "center", fontFamily: "Playfair Display" },
-  sucesso: { fontSize: 18, fontWeight: "bold", color: "green", marginTop: 10, fontFamily: "Playfair Display" },
- primaryButton: {
-    backgroundColor: "#614326ff",
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-    width: 140,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-});

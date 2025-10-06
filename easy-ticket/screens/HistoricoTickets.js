@@ -7,11 +7,35 @@ export default function HistoricoTickets() {
 
   useEffect(() => {
     async function carregarLogs() {
-      // Prioriza chave correta; tenta chave antiga para compatibilidade
       const primary = await AsyncStorage.getItem("ticket_logs");
       const legacy = !primary ? await AsyncStorage.getItem("tickets_logs") : null;
       const raw = primary || legacy;
-      setLogs(raw ? JSON.parse(raw).reverse() : []);
+      const logsArr = raw ? JSON.parse(raw) : [];
+      // tentar enriquecer cada log com a turma e matrícula, buscando em "tickets" quando possível
+      try {
+        const ticketsJson = await AsyncStorage.getItem("tickets");
+        const tickets = ticketsJson ? JSON.parse(ticketsJson) : {};
+        const enriched = logsArr.map(l => {
+          const id = String(l.ticketId ?? l.matricula ?? "");
+          const ticketFromStore = id && tickets[id] ? tickets[id] : null;
+          const matriculaField = l.matricula ?? l.ticketId ?? (ticketFromStore ? String(ticketFromStore.matricula ?? "") : "");
+          const turmaFromTickets = ticketFromStore ? ticketFromStore.turma : null;
+          return {
+            ...l,
+            turma: l.turma ?? turmaFromTickets ?? null,
+            matricula: matriculaField || null
+          };
+        });
+        setLogs(enriched.reverse());
+      } catch (e) {
+        // fallback simples se algo falhar
+        // garantir que cada log tenha alguma matrícula para exibição
+        const fallback = logsArr.map(l => ({
+          ...l,
+          matricula: String(l.matricula ?? l.ticketId ?? "")
+        }));
+        setLogs(fallback.reverse());
+      }
     }
     carregarLogs();
   }, []);
@@ -29,7 +53,7 @@ export default function HistoricoTickets() {
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text style={styles.text}>
-                <Text style={{ fontWeight: "bold" }}>{item.usuario}</Text> ({item.turma || "—"}) usou o ticket em{" "}
+                <Text style={{ fontWeight: "bold" }}>matricula: {item.matricula || item.usuario || "—"}</Text> turma: {item.turma || "—"}, usou o ticket em{" "}
                 {new Date(item.data).toLocaleString()}
               </Text>
             </View>

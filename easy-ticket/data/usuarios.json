@@ -1,6 +1,5 @@
 {
   "admins": [
-    { "matricula": "123", "senha": "admin123" },
-    { "matricula": "456", "senha": "admin456" }
+    { "matricula": "admin", "senha": "admin123" }
   ]
 }
